@@ -1,0 +1,14 @@
+// ============================================================
+// APP.SCSS — entry point
+// quasar.variables.scss TIDAK perlu di-import manual,
+// karena sudah otomatis dibaca oleh Quasar CLI.
+// ============================================================
+
+@import './typography';
+@import './reset-components';
+@import './custom-components';
+@import './company-quasar-theme';
+
+// Tambahan global kecil-kecil bisa taruh di sini langsung,
+// tapi kalau sudah banyak, lebih baik pecah jadi file baru
+// dan import di atas juga.

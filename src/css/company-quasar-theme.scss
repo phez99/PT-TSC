@@ -1,0 +1,817 @@
+// ============================================================
+// COMPANY PROFILE THEME — di atas komponen Quasar asli
+// Targetnya .q-header, .q-toolbar, .q-btn, .q-card, .q-chip
+// bukan class buatan sendiri — jadi otomatis nyambung ke
+// komponen Quasar yang kamu panggil di template.
+// ============================================================
+
+@import './color-shades';
+
+// ---------- NAVBAR (q-header + q-toolbar) ----------
+.q-header {
+  &.company-navbar {
+    background: transparent;
+    box-shadow: none !important;
+    transition:
+      background 0.3s ease,
+      backdrop-filter 0.3s ease;
+
+    &.company-navbar--scrolled {
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(10px);
+    }
+  }
+}
+
+.q-toolbar.company-toolbar {
+  min-height: 64px;
+}
+
+// Link menu di navbar
+.company-nav-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #e2e8f0;
+  transition: color 0.15s ease;
+  padding: 0.25rem 0;
+
+  &:hover {
+    color: $amber-600;
+  }
+}
+
+// ---------- BUTTON (q-btn) ----------
+// Pakai lewat: <q-btn class="btn-gold" label="Konsultasi" />
+.q-btn.btn-gold {
+  background: linear-gradient(
+    135deg,
+    $gold-light 0%,
+    $amber-600 50%,
+    $amber-700 100%
+  ) !important;
+  color: $navy-950 !important;
+  font-weight: 700;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px -8px rgba(245, 158, 11, 0.3) !important;
+  text-transform: none;
+
+  &:hover {
+    box-shadow: 0 12px 24px -6px rgba(245, 158, 11, 0.45) !important;
+  }
+}
+
+.q-btn.btn-ghost-navy {
+  background: rgba(30, 41, 59, 0.8) !important;
+  color: #fff !important;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  text-transform: none;
+  backdrop-filter: blur(4px);
+
+  &:hover {
+    background: #334155 !important;
+  }
+}
+
+// ---------- CARD (q-card) ----------
+// Pakai lewat: <q-card class="company-card">
+.q-card.company-card {
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-8px);
+  }
+}
+
+.company-card-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 12px;
+  background: $navy-900;
+  color: $amber-600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  transition: transform 0.2s ease;
+}
+
+.q-card.company-card:hover .company-card-icon {
+  transform: scale(1.1);
+}
+
+// Card khusus untuk portfolio/project (efek hover berbeda)
+.q-card.project-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-8px);
+  }
+
+  &:hover .project-overlay {
+    opacity: 1;
+  }
+}
+
+// ---------- BADGE (pakai q-chip) ----------
+// Pakai lewat: <q-chip class="company-badge">Teks</q-chip>
+.q-chip.company-badge {
+  background: rgba(30, 41, 59, 0.8) !important;
+  border: 1px solid #334155;
+  color: $amber-600 !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.company-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $amber-600;
+  display: inline-block;
+  animation: company-pulse 1.5s infinite;
+}
+
+@keyframes company-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+// ---------- TEXT GRADIENT (dipakai di <span>) ----------
+.company-gradient-text {
+  background: linear-gradient(
+    135deg,
+    $gold-light 0%,
+    $amber-600 50%,
+    $amber-700 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// ---------- HERO SECTION ----------
+.company-hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  background: $navy-950;
+  overflow: hidden;
+  padding: 6rem 0 4rem;
+}
+
+.company-hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.25;
+    filter: brightness(0.75);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to right,
+      $navy-950,
+      rgba(9, 13, 22, 0.8),
+      transparent
+    );
+  }
+}
+
+.company-hero-content {
+  position: relative;
+  z-index: 10;
+}
+
+// ---------- HERO IMAGE + LOGO OVERLAY (kolom kanan) ----------
+.company-hero-image-wrap {
+  position: relative;
+  border-radius: 16px;
+  overflow: visible; // sengaja 'visible' biar logo boleh nongol keluar batas gambar
+}
+
+.company-hero-image {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.35);
+}
+
+// Logo di atas background image.
+// Posisi diatur lewat CSS variable --logo-top / --logo-left / --logo-right / --logo-bottom / --logo-width
+// biar gampang diubah dari luar (inline style) tanpa edit file ini.
+.company-hero-logo {
+  position: absolute;
+  top: var(--logo-top, auto);
+  left: var(--logo-left, auto);
+  right: var(--logo-right, auto);
+  bottom: var(--logo-bottom, auto);
+  width: var(--logo-width, 96px);
+  z-index: 20;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
+}
+
+// ---------- ABOUT: IMAGE GALLERY STACK ----------
+.company-about-images {
+  position: relative;
+}
+
+.company-about-images img {
+  border-radius: 12px;
+  object-fit: cover;
+  width: 100%;
+  height: 16rem;
+  box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.3);
+  border: 1px solid #1e293b;
+}
+
+.company-about-images .company-img-offset {
+  margin-top: 2rem; // efek staggered/zig-zag ala referensi
+}
+
+// Badge "15+ Tahun Pengalaman" yang mengambang di pojok gambar
+.company-experience-badge {
+  position: absolute;
+  bottom: -1.5rem;
+  right: 0.5rem;
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.company-experience-badge-number {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    $gold-light 0%,
+    $amber-600 50%,
+    $amber-700 100%
+  );
+  color: $navy-950;
+  font-weight: 900;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+// ---------- ABOUT: EYEBROW LABEL (mis. "TENTANG KAMI") ----------
+.company-eyebrow {
+  display: inline-block;
+  color: $amber-600;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  padding: 0.25rem 0.75rem;
+  border-radius: 8px;
+}
+
+// ---------- ABOUT: VISION/MISSION ICON BOX ----------
+.company-icon-box-sm {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  background: rgba(245, 158, 11, 0.2);
+  color: $amber-600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+// ---------- STATS COUNTER CARD ----------
+.company-stat-card {
+  border-radius: 12px;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid #1e293b;
+  padding: 1rem;
+  text-align: center;
+}
+
+// ---------- CARA KAMI BEKERJA (process steps) ----------
+.company-process-step {
+  background: $navy-900;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  position: relative;
+}
+
+.company-process-step-number {
+  position: absolute;
+  top: -14px;
+  left: 20px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $gold-light 0%, $amber-600 100%);
+  color: $navy-950;
+  font-weight: 700;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.company-process-arrow {
+  display: flex;
+  justify-content: center;
+  color: $amber-600;
+  font-size: 1.25rem;
+  margin: 0.25rem 0;
+}
+
+// ---------- LOGO GRID (Referensi & Mitra Kami) ----------
+.company-logo-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem;
+  height: 100px;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    filter: grayscale(1);
+    opacity: 0.7;
+    transition:
+      filter 0.2s ease,
+      opacity 0.2s ease;
+  }
+
+  &:hover {
+    box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-4px);
+
+    img {
+      filter: grayscale(0);
+      opacity: 1;
+    }
+  }
+}
+
+.company-logo-fallback {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-align: center;
+}
+
+// ---------- CONTACT / CTA BANNER ----------
+.company-contact-banner {
+  background: $navy-900;
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  padding: 2rem;
+  color: #fff;
+
+  @media (max-width: 599px) {
+    padding: 1.25rem 1rem;
+  }
+}
+
+.company-contact-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+  min-width: 0;
+  overflow: hidden;
+
+  &:hover {
+    border-color: $amber-600;
+    background: rgba(15, 23, 42, 0.9);
+  }
+
+  @media (max-width: 599px) {
+    padding: 1rem 0.85rem;
+  }
+}
+
+.contact-info-col {
+  min-width: 0;
+  flex: 1;
+}
+
+.contact-link {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.05rem;
+  transition: color 0.15s ease;
+  display: block;
+
+  &:hover {
+    color: $amber-500;
+  }
+}
+
+.contact-email-text {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  word-break: break-all;
+  max-width: 100%;
+  font-size: 0.95rem;
+  line-height: 1.4;
+
+  @media (max-width: 599px) {
+    font-size: 0.84rem;
+  }
+}
+
+.company-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 500;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.company-contact-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(245, 158, 11, 0.15);
+  color: $amber-500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+// ---------- FOOTER ----------
+.company-footer {
+  background: $navy-950;
+  color: #94a3b8;
+  padding: 4rem 0 0;
+}
+
+.company-footer-heading {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 1.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.company-footer-text {
+  font-size: 0.875rem;
+  line-height: 1.8;
+  color: #94a3b8;
+}
+
+.company-footer-link {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #94a3b8;
+  margin-bottom: 0.75rem;
+  transition: color 0.15s ease;
+  min-width: 0; // penting: biar flex item boleh menyusut, bukan overflow
+
+  &:hover {
+    color: $amber-600;
+  }
+}
+
+.company-footer-link-text {
+  overflow-wrap: anywhere; // izinkan email/teks panjang tanpa spasi untuk wrap
+  word-break: break-word;
+  min-width: 0;
+}
+
+.company-footer-bottom {
+  border-top: 1px solid #1e293b;
+  margin-top: 3rem;
+  padding: 1.5rem 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+// ---------- LOGIN PAGE ----------
+.company-login-wrap {
+  min-height: 100vh;
+  display: flex;
+}
+
+.company-login-brand {
+  flex: 1;
+  background: linear-gradient(
+    160deg,
+    $navy-950 0%,
+    $navy-900 60%,
+    $navy-800 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.company-login-brand-inner {
+  max-width: 440px;
+}
+
+.company-login-brand-logo {
+  height: 56px;
+}
+
+.company-login-form-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  background: #f8fafc;
+}
+
+.company-login-form-box {
+  width: 100%;
+  max-width: 440px;
+}
+
+.company-login-mobile-logo {
+  height: 44px;
+  margin-bottom: 1.5rem;
+  // logo berwarna putih, jadi butuh latar gelap di atas background terang
+  background: $navy-900;
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  box-sizing: content-box;
+}
+
+// ---------- DASHBOARD LAYOUT ----------
+.q-header.company-dash-header {
+  background: $navy-900 !important;
+  border-bottom: 1px solid $navy-800;
+}
+
+.company-dash-drawer {
+  background: $navy-950 !important;
+  border-right: 1px solid $navy-800;
+}
+
+.company-dash-brand {
+  padding: 1.25rem 1.5rem;
+
+  img {
+    height: 36px;
+  }
+}
+
+.q-item.company-dash-menu-item {
+  color: #cbd5e1;
+  border-radius: 8px;
+  margin: 2px 12px;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &.q-router-link--active {
+    background: rgba(245, 158, 11, 0.12);
+    color: $amber-600;
+  }
+}
+
+.company-dash-page-bg {
+  background: #f1f5f9;
+}
+
+.q-card.company-dash-card {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+
+// ---------- PORTOFOLIO PROYEK ----------
+// Tombol filter kategori (di atas latar gelap)
+.q-btn.company-filter-btn {
+  background: rgba(30, 41, 59, 0.8) !important;
+  color: #cbd5e1 !important;
+  border: 1px solid #334155;
+  border-radius: 9999px;
+  padding: 0 1.25rem;
+  font-weight: 500;
+
+  &:hover {
+    background: #334155 !important;
+  }
+
+  &.company-filter-btn--active {
+    background: linear-gradient(
+      135deg,
+      $gold-light 0%,
+      $amber-600 50%,
+      $amber-700 100%
+    ) !important;
+    color: $navy-950 !important;
+    border-color: transparent;
+    font-weight: 700;
+  }
+}
+
+// Area gambar proyek
+.company-project-media {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  background: $navy-900;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+}
+
+.q-card.project-card:hover .company-project-media img {
+  transform: scale(1.08);
+}
+
+// Overlay gelap yang muncul saat hover (aturan opacity: 1 sudah ada di .project-card)
+.project-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: linear-gradient(to top, rgba(9, 13, 22, 0.8), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.company-project-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: $navy-950;
+  background: $gold-light;
+  border-radius: 9999px;
+  padding: 0.2rem 0.7rem;
+}
+
+// Kalau foto proyek belum ada / gagal load
+.company-project-placeholder {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  background: linear-gradient(135deg, $navy-900 0%, $navy-800 100%);
+}
+
+// ---------- DASHBOARD: TABEL & DETAIL ----------
+.company-dash-table {
+  thead th {
+    font-weight: 600;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #475569;
+  }
+
+  tbody tr {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background: rgba(245, 158, 11, 0.06);
+    }
+  }
+}
+
+.company-info-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 0.15rem;
+}
+
+.company-info-value {
+  font-weight: 500;
+  color: #0f172a;
+}
+
+// ---------- APPROVAL: TIMELINE RIWAYAT ----------
+.q-timeline .q-timeline__title {
+  color: #0f172a;
+  font-size: 0.9rem;
+}
+
+.q-timeline .q-timeline__subtitle {
+  color: #64748b;
+}
+
+// ---------- SECTION VARIANT (q-page atau div section) ----------
+.company-section-dark {
+  background: $navy-950;
+  color: #fff;
+}
+.company-section-slate {
+  background: $navy-900;
+  color: #fff;
+}
+.company-section-light {
+  background: #fff;
+}
+
+// ---------- SCROLLBAR ----------
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: $navy-900;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: $amber-600;
+}
+
+// ---------- PRINT MEDIA STYLES ----------
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .q-header,
+  .q-drawer,
+  .q-dialog__backdrop,
+  .no-print,
+  button:not(.allow-print) {
+    display: none !important;
+  }
+  .q-page-container {
+    padding: 0 !important;
+  }
+  .q-dialog__inner {
+    padding: 0 !important;
+  }
+  #print-bast-area,
+  #print-recap-area,
+  #print-spkl-area {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 10mm 15mm !important;
+  }
+}
+

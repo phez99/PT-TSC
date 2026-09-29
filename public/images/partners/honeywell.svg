@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <!-- Honeywell -->
+  <rect width="200" height="60" rx="8" fill="#ffffff"/>
+  <text x="100" y="38" font-family="'Helvetica Neue', 'Arial Black', sans-serif" font-size="22" font-weight="900" fill="#EE3124" letter-spacing="1" text-anchor="middle">Honeywell</text>
+</svg>

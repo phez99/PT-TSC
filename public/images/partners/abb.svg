@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <!-- ABB -->
+  <rect width="200" height="60" rx="8" fill="#ffffff"/>
+  <rect x="25" y="14" width="32" height="32" rx="4" fill="#FF000F"/>
+  <text x="41" y="38" font-family="'Arial Black', Impact, sans-serif" font-size="20" font-weight="900" fill="#ffffff" text-anchor="middle">A</text>
+  <rect x="63" y="14" width="32" height="32" rx="4" fill="#FF000F"/>
+  <text x="79" y="38" font-family="'Arial Black', Impact, sans-serif" font-size="20" font-weight="900" fill="#ffffff" text-anchor="middle">B</text>
+  <rect x="101" y="14" width="32" height="32" rx="4" fill="#FF000F"/>
+  <text x="117" y="38" font-family="'Arial Black', Impact, sans-serif" font-size="20" font-weight="900" fill="#ffffff" text-anchor="middle">B</text>
+  <text x="142" y="37" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#4a5568" letter-spacing="1">GROUP</text>
+</svg>

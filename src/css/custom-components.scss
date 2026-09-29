@@ -1,0 +1,32 @@
+// ============================================================
+// CUSTOM COMPONENTS
+// Tulis semua override/custom style KAMU sendiri di sini,
+// terpisah dari reset bawaan (_reset-components.scss),
+// biar gampang di-maintain dan tidak campur aduk.
+// ============================================================
+
+// Contoh: bikin varian button baru "q-btn--pill" (rounded penuh)
+.q-btn--pill {
+  border-radius: 9999px;
+  padding: 8px 24px;
+}
+
+// Contoh: bikin varian button "soft" (background lembut, teks warna primary)
+.q-btn--soft {
+  background-color: rgba(37, 99, 235, 0.1); // primary dengan opacity
+  color: $primary;
+  box-shadow: none !important;
+
+  &:hover {
+    background-color: rgba(37, 99, 235, 0.15);
+  }
+}
+
+// Contoh: card dengan style "glass"
+.q-card--glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+// --- Tempat kamu nambah komponen custom lainnya di bawah sini ---

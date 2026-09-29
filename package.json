@@ -1,0 +1,33 @@
+{
+  "name": "master",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Company profile and material request management portal for PT. Trimitra Solusindo Cemerlang",
+  "keywords": ["quasar", "quasar-app", "quasar-app-vite", "quasar-cli", "vite", "vue", "vuejs"],
+  "type": "module",
+  "scripts": {
+    "lint": "oxfmt && oxlint --fix",
+    "lint:check": "oxfmt --check && oxlint",
+    "dev": "quasar dev -p 3000 -H 0.0.0.0",
+    "build": "quasar build",
+    "postinstall": "quasar prepare --silent"
+  },
+  "dependencies": {
+    "@quasar/extras": "^2.1.0",
+    "pinia": "^4.0.2",
+    "quasar": "^2.33.0",
+    "vue": "^3.5.22",
+    "vue-router": "^5.0.6"
+  },
+  "devDependencies": {
+    "@quasar/app-vite": "^3.9.0",
+    "autoprefixer": "^10.4.27",
+    "oxfmt": "^0.x",
+    "oxlint": "^1.x",
+    "postcss": "^8.5.8"
+  },
+  "engines": {
+    "node": ">= 20"
+  },
+  "productName": "PT. Trimitra Solusindo Cemerlang"
+}

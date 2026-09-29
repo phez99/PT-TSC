@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <!-- Johnson Controls -->
+  <rect width="200" height="60" rx="8" fill="#ffffff"/>
+  <circle cx="28" cy="30" r="14" fill="#005A9C"/>
+  <path d="M22 28l4 4 8-8" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="50" y="29" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="800" fill="#002D62">Johnson</text>
+  <text x="50" y="44" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="800" fill="#78BE20">Controls</text>
+</svg>

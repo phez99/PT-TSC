@@ -1,0 +1,48 @@
+// ============================================================
+// COLOR SHADES — tambahan di luar $primary/$secondary/dst
+// Quasar cuma auto-generate class untuk primary/secondary/accent/
+// dark/positive/negative/info/warning. Untuk shade tambahan
+// (navy-950, gold-light, dll) kita tulis manual di sini.
+// Nama class sengaja pakai prefix unik biar gak ketiban/nabrak
+// apapun punya Quasar.
+// ============================================================
+
+$navy-950: #090d16;
+$navy-900: #0f172a;
+$navy-800: #1e293b;
+$amber-500: #f59e0b;
+$amber-600: #d97706;
+$amber-700: #b45309;
+$gold-light: #fbbf24;
+
+.bg-navy-950 {
+  background-color: $navy-950 !important;
+}
+.bg-navy-900 {
+  background-color: $navy-900 !important;
+}
+.bg-navy-800 {
+  background-color: $navy-800 !important;
+}
+.bg-amber-600 {
+  background-color: $amber-600 !important;
+}
+.bg-amber-700 {
+  background-color: $amber-700 !important;
+}
+
+.text-navy-950 {
+  color: $navy-950 !important;
+}
+.text-navy-900 {
+  color: $navy-900 !important;
+}
+.text-navy-800 {
+  color: $navy-800 !important;
+}
+.text-amber-600 {
+  color: $amber-600 !important;
+}
+.text-gold-light {
+  color: $gold-light !important;
+}

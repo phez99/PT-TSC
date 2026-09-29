@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <!-- HIKVISION -->
+  <rect width="200" height="60" rx="8" fill="#ffffff"/>
+  <path d="M18 18h8v24h-8zm14 0h8v10h12V18h8v24h-8V34H40v8h-8z" fill="#E60012"/>
+  <text x="76" y="38" font-family="'Arial Black', -apple-system, sans-serif" font-size="20" font-weight="900" fill="#E60012" letter-spacing="1">HIKVISION</text>
+</svg>
