@@ -201,10 +201,42 @@
         </div>
       </div>
 
-      <!-- FEED INFORMASI & DISKUSI LAPANGAN (ALA FB / SOCIAL WALL) -->
-      <div class="q-mb-xl">
-        <CompanyFeedWall />
-      </div>
+      <!-- PINTASAN PAPAN INFORMASI & DISKUSI LAPANGAN (HALAMAN TERPISAH) -->
+      <q-card
+        class="q-pa-md q-mb-lg cursor-pointer shadow-2"
+        style="
+          background: linear-gradient(135deg, #090d16 0%, #0f172a 60%, #1e293b 100%);
+          border-radius: 14px;
+          border: 1px solid #334155;
+        "
+        @click="router.push('/dashboard/feed')"
+      >
+        <div class="row items-center justify-between q-col-gutter-sm text-white">
+          <div class="col-12 col-sm-8 row items-center q-gutter-x-md">
+            <q-avatar color="amber-8" text-color="dark" icon="campaign" size="44px" />
+            <div>
+              <div class="text-subtitle1 text-weight-bold text-white row items-center">
+                <span>Papan Informasi &amp; Diskusi Lapangan</span>
+                <q-badge color="amber-5" text-color="dark" class="q-ml-sm text-weight-bold" style="font-size: 10px;">
+                  FORUM &amp; K3
+                </q-badge>
+              </div>
+              <div class="text-caption text-grey-4">
+                Briefing K3 keselamatan kerja, update kemajuan proyek, mention tim, dan ruang diskusi lapangan.
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-4 text-left text-sm-right">
+            <q-btn
+              class="btn-gold"
+              no-caps
+              icon-right="arrow_forward"
+              label="Buka Papan Info"
+              to="/dashboard/feed"
+            />
+          </div>
+        </div>
+      </q-card>
 
       <!-- Dua Kolom Karyawan: Status Pengajuan Mandiri & Panduan Keselamatan K3 -->
       <div class="row q-col-gutter-lg">
@@ -805,10 +837,40 @@
         </div>
       </div>
 
-      <!-- PAPAN PENGUMUMAN & DISKUSI KARYAWAN LAPANGAN (ADMIN & MANAJEMEN) -->
-      <div class="q-mt-xl">
-        <CompanyFeedWall />
-      </div>
+      <!-- PAPAN PENGUMUMAN & DISKUSI KARYAWAN LAPANGAN (LINK KE HALAMAN TERPISAH) -->
+      <q-card
+        class="q-pa-md q-mt-xl cursor-pointer shadow-1"
+        style="
+          background: #ffffff;
+          border-radius: 14px;
+          border: 1px solid #e2e8f0;
+        "
+        @click="router.push('/dashboard/feed')"
+      >
+        <div class="row items-center justify-between q-col-gutter-sm">
+          <div class="col-12 col-sm-8 row items-center q-gutter-x-md">
+            <q-avatar color="navy-900" text-color="amber-5" icon="campaign" size="44px" />
+            <div>
+              <div class="text-subtitle1 text-weight-bold text-navy-950 row items-center">
+                <span>Papan Informasi &amp; Diskusi Lapangan</span>
+                <q-badge color="positive" class="q-ml-sm text-weight-bold">HALAMAN KHUSUS</q-badge>
+              </div>
+              <div class="text-caption text-grey-6">
+                Terbitkan pengumuman resmi perusahaan, briefing K3 keselamatan kerja, serta respon tanggapan teknisi.
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-4 text-left text-sm-right">
+            <q-btn
+              class="btn-gold"
+              no-caps
+              icon-right="arrow_forward"
+              label="Buka Papan Info &amp; Diskusi"
+              to="/dashboard/feed"
+            />
+          </div>
+        </div>
+      </q-card>
     </template>
   </q-page>
 </template>
@@ -817,7 +879,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '/src/composables/useAuth.js'
-import CompanyFeedWall from '/src/components/feed/CompanyFeedWall.vue'
 import { getProjects } from '/src/services/projects.service.js'
 import { getMaterialRequests } from '/src/services/material-requests.service.js'
 import { getLeaves } from '/src/services/leaves.service.js'

@@ -20,6 +20,13 @@ export const menuItems = [
     ready: true
   },
   {
+    label: 'Papan Info & Diskusi',
+    icon: 'campaign',
+    to: '/dashboard/feed',
+    roles: ALL,
+    ready: true
+  },
+  {
     label: 'Manajemen Proyek',
     icon: 'engineering',
     to: '/dashboard/projects',
