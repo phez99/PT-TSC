@@ -11,13 +11,21 @@ const SEED_ATTENDANCE = [
     userName: 'Staf Teknisi',
     userRole: 'staff',
     position: 'Teknisi Lapangan',
-    date: '2026-09-29',
+    date: '2026-10-09',
     clockIn: '07:55',
     clockOut: '17:10',
     location: 'Proyek Puri Mansion Apartemen',
     status: 'ontime', // ontime | late | leave | sick
     notes: 'Pemasangan kabel tray FO dan terminasi patch panel rack 2.',
-    photo: null
+    photo: null,
+    coords: {
+      latitude: -6.183412,
+      longitude: 106.721405,
+      accuracy: 12,
+      address: 'Jl. Lingkar Luar Barat No. 8, Kembangan, Jakarta Barat'
+    },
+    apdList: ['Helm Keselamatan (Safety Helmet)', 'Rompi Reflektor', 'Sepatu Safety'],
+    healthStatus: 'fit'
   },
   {
     id: 2,
@@ -25,13 +33,21 @@ const SEED_ATTENDANCE = [
     userName: 'Project Manager',
     userRole: 'pm',
     position: 'Project Manager',
-    date: '2026-09-29',
+    date: '2026-10-09',
     clockIn: '08:10',
     clockOut: null,
     location: 'Kawasan Industri MM2100 Bekasi',
     status: 'ontime',
     notes: 'Supervisi pengiriman panel genset 500kVA dan koordinasi dengan safety officer pabrik.',
-    photo: null
+    photo: null,
+    coords: {
+      latitude: -6.311245,
+      longitude: 107.098712,
+      accuracy: 15,
+      address: 'Kawasan Industri MM2100 Blok C-2, Cikarang Barat, Bekasi'
+    },
+    apdList: ['Helm Keselamatan (Safety Helmet)', 'Rompi Reflektor', 'Sepatu Safety', 'Full Body Harness'],
+    healthStatus: 'fit'
   },
   {
     id: 3,
@@ -39,13 +55,21 @@ const SEED_ATTENDANCE = [
     userName: 'Finance TSC',
     userRole: 'finance',
     position: 'Staff Finance',
-    date: '2026-09-29',
+    date: '2026-10-09',
     clockIn: '08:25',
     clockOut: null,
     location: 'Head Office - Ruko Newton Square',
     status: 'ontime',
     notes: 'Rekonsiliasi invoice termin September dan verifikasi berkas faktur pajak.',
-    photo: null
+    photo: null,
+    coords: {
+      latitude: -6.372504,
+      longitude: 106.942118,
+      accuracy: 8,
+      address: 'Ruko Newton Square U18/30, Legenda Wisata, Gn. Putri, Bogor'
+    },
+    apdList: ['ID Badge Karyawan'],
+    healthStatus: 'fit'
   },
   {
     id: 4,
@@ -53,13 +77,21 @@ const SEED_ATTENDANCE = [
     userName: 'Manager TSC',
     userRole: 'manager',
     position: 'Manager Operasional',
-    date: '2026-09-29',
+    date: '2026-10-09',
     clockIn: '08:05',
     clockOut: null,
     location: 'Head Office - Ruko Newton Square',
     status: 'ontime',
     notes: 'Review mingguan BAST proyek Sunter dan approval material request.',
-    photo: null
+    photo: null,
+    coords: {
+      latitude: -6.372504,
+      longitude: 106.942118,
+      accuracy: 9,
+      address: 'Ruko Newton Square U18/30, Legenda Wisata, Gn. Putri, Bogor'
+    },
+    apdList: ['ID Badge Karyawan'],
+    healthStatus: 'fit'
   },
   {
     id: 5,
@@ -67,13 +99,21 @@ const SEED_ATTENDANCE = [
     userName: 'Admin TSC',
     userRole: 'admin',
     position: 'Administrator',
-    date: '2026-09-29',
+    date: '2026-10-09',
     clockIn: '07:45',
     clockOut: null,
     location: 'Head Office - Ruko Newton Square',
     status: 'ontime',
     notes: 'Pemeliharaan server portal dan backup database operasional.',
-    photo: null
+    photo: null,
+    coords: {
+      latitude: -6.372504,
+      longitude: 106.942118,
+      accuracy: 10,
+      address: 'Ruko Newton Square U18/30, Legenda Wisata, Gn. Putri, Bogor'
+    },
+    apdList: ['ID Badge Karyawan'],
+    healthStatus: 'fit'
   }
 ]
 
@@ -99,7 +139,7 @@ export async function getAttendanceList() {
   return read()
 }
 
-export async function recordClockIn(user, location, notes) {
+export async function recordClockIn(user, location, notes, extra = {}) {
   await delay()
   const list = read()
   const now = new Date()
@@ -127,7 +167,11 @@ export async function recordClockIn(user, location, notes) {
     location: location || 'Head Office - Ruko Newton Square',
     status: isLate ? 'late' : 'ontime',
     notes: notes || 'Hadir dan bertugas di lapangan/kantor.',
-    photo: null
+    photo: extra.photo || null,
+    coords: extra.coords || null,
+    apdList: extra.apdList || [],
+    healthStatus: extra.healthStatus || 'fit',
+    timestamp: now.toISOString()
   }
 
   list.unshift(newEntry)
@@ -135,7 +179,7 @@ export async function recordClockIn(user, location, notes) {
   return newEntry
 }
 
-export async function recordClockOut(user, notes) {
+export async function recordClockOut(user, notes, extra = {}) {
   await delay()
   const list = read()
   const now = new Date()
@@ -148,6 +192,10 @@ export async function recordClockOut(user, notes) {
   }
 
   list[existingIndex].clockOut = timeStr
+  list[existingIndex].clockOutPhoto = extra.photo || null
+  list[existingIndex].clockOutCoords = extra.coords || null
+  list[existingIndex].clockOutTimestamp = now.toISOString()
+
   if (notes) {
     list[existingIndex].notes = `${list[existingIndex].notes} | Jam Pulang: ${notes}`
   }

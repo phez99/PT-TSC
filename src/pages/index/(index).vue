@@ -192,6 +192,7 @@ const options = [
   { label: 'Visi & Misi', value: 'visi&misi' },
   { label: 'Proses Kerja', value: 'proseskerja' },
   { label: 'Layanan', value: 'layanan' },
+  { label: 'Portofolio', value: 'portofolio' },
   { label: 'Keunggulan', value: 'keunggulan' },
   { label: 'Kontak', value: 'kontak' },
   { label: 'Klien Kami', value: 'klien' }
