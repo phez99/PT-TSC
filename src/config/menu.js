@@ -81,6 +81,13 @@ export const menuItems = [
     to: '/dashboard/users',
     roles: ['admin', 'manager'],
     ready: true
+  },
+  {
+    label: 'CMS Website Utama',
+    icon: 'web',
+    to: '/dashboard/cms',
+    roles: ['admin', 'manager'],
+    ready: true
   }
 ]
 

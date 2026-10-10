@@ -101,32 +101,74 @@
 
     <HeroSection
       id="home"
-      background-image="/01.jpg"
+      :badge-text="cms.hero.badgeText"
+      :title-prefix="cms.hero.titlePrefix"
+      :title-highlight="cms.hero.titleHighlight"
+      :description="cms.hero.description"
+      :cta-primary-label="cms.hero.ctaPrimaryLabel"
+      :cta-secondary-label="cms.hero.ctaSecondaryLabel"
+      :highlights="cms.hero.highlights"
+      :background-image="cms.hero.backgroundImage || '/01.jpg'"
       :logo-position="{ top: '10px', left: '10px', width: '60px' }"
       @primary-click="scrollToId('layanan')"
       @secondary-click="scrollToId('kontak')"
     />
 
-    <AboutSection id="tentangkami" />
-    <VisionMissionSection id="visi&misi" />
+    <AboutSection
+      id="tentangkami"
+      :title="cms.about.title"
+      :paragraphs="cms.about.paragraphs"
+    />
+    <VisionMissionSection
+      id="visi&misi"
+      :vision="cms.visionMission.vision"
+      :missions="cms.visionMission.missions"
+    />
     <HowWeWorkSection id="proseskerja" />
     <ServicesSection id="layanan" />
     <PortfolioSection id="portofolio" />
     <AdvantagesSection id="keunggulan" image="/01.jpg" />
-    <ContactSection id="kontak" />
+    <ContactSection
+      id="kontak"
+      :title="cms.contact.title"
+      :description="cms.contact.description"
+      :phone="cms.contact.phone"
+      :email="cms.contact.email"
+    />
     <!-- Section Referensi (klien) -->
     <LogoGridSection
       id="klien"
       eyebrow="Klien Kami"
       title="Referensi Proyek & Klien"
       :logos="[
-        { name: 'PT Adhi Karya (Persero) Tbk', image: '/images/client/adhi-karya.png' },
-        { name: 'Agung Sedayu Group', image: '/images/client/agung-sedayu.png' },
-        { name: 'PT Telkom Indonesia Tbk', image: '/images/client/telkom_indonesia.png' },
-        { name: 'PT Bio Farma (Persero)', image: '/images/client/bio-farma.png' },
-        { name: 'Sahid Jaya Hotel & Resorts', image: '/images/client/sahid-jaya.png' },
-        { name: 'PT Mayora Indah Tbk', image: '/images/client/logo-mayora.png' },
-        { name: 'PT Medco Energi Internasional', image: '/images/client/medco.svg' },
+        {
+          name: 'PT Adhi Karya (Persero) Tbk',
+          image: '/images/client/adhi-karya.png'
+        },
+        {
+          name: 'Agung Sedayu Group',
+          image: '/images/client/agung-sedayu.png'
+        },
+        {
+          name: 'PT Telkom Indonesia Tbk',
+          image: '/images/client/telkom_indonesia.png'
+        },
+        {
+          name: 'PT Bio Farma (Persero)',
+          image: '/images/client/bio-farma.png'
+        },
+        {
+          name: 'Sahid Jaya Hotel & Resorts',
+          image: '/images/client/sahid-jaya.png'
+        },
+        {
+          name: 'PT Mayora Indah Tbk',
+          image: '/images/client/logo-mayora.png'
+        },
+        {
+          name: 'PT Medco Energi Internasional',
+          image: '/images/client/medco.svg'
+        },
         { name: 'PT Wijaya Karya (WIKA)', image: '/images/client/wika.svg' }
       ]"
     />
@@ -140,7 +182,10 @@
         { name: 'Hikvision', image: '/images/partners/hikvision.svg' },
         { name: 'ABB', image: '/images/partners/abb.svg' },
         { name: 'Siemens', image: '/images/partners/siemens.svg' },
-        { name: 'Johnson Controls', image: '/images/partners/johnson-controls.svg' },
+        {
+          name: 'Johnson Controls',
+          image: '/images/partners/johnson-controls.svg'
+        },
         { name: 'Omron', image: '/images/partners/omron.svg' },
         { name: 'Dahua Technology', image: '/images/partners/dahua.svg' },
         { name: 'Samsung', image: '/images/partners/samsung.svg' },
@@ -167,9 +212,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth.js'
+import { getCmsContent } from '/src/services/cms.service.js'
 import HeroSection from '@/components/HeroSection.vue'
 import AboutSection from '@/components/AboutSection.vue'
 import VisionMissionSection from '@/components/VisionMissionSection.vue'
@@ -183,6 +229,17 @@ import FooterSection from '@/components/FooterSection.vue'
 
 const router = useRouter()
 const { isLoggedIn } = useAuth()
+
+const cms = ref(getCmsContent())
+
+onMounted(() => {
+  cms.value = getCmsContent()
+  if (typeof window !== 'undefined') {
+    window.addEventListener('tsc_cms_updated', e => {
+      cms.value = e.detail || getCmsContent()
+    })
+  }
+})
 
 const model = ref('home')
 const leftDrawerOpen = ref(false)
