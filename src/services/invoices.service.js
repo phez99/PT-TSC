@@ -12,15 +12,18 @@ const SEED_INVOICES = [
     projectId: 1,
     projectName: 'Puri Mansion Apartemen - Electronic System',
     clientName: 'PT Puri Indah Makmur (Puri Mansion)',
-    clientAddress: 'Jl. Lingkar Luar Barat No. 8, Puri Kembangan, Jakarta Barat',
+    clientAddress:
+      'Jl. Lingkar Luar Barat No. 8, Puri Kembangan, Jakarta Barat',
     clientEmail: 'finance@purimansion.co.id',
     issueDate: '2026-09-10',
     dueDate: '2026-09-24',
     status: 'paid', // draft | sent | paid | overdue
-    notes: 'Termin I (DP 30%) untuk pengadaan dan instalasi IP CCTV & Access Control System.',
+    notes:
+      'Termin I (DP 30%) untuk pengadaan dan instalasi IP CCTV & Access Control System.',
     items: [
       {
-        description: 'Down Payment (DP) 30% Pekerjaan Security System & Surveillance',
+        description:
+          'Down Payment (DP) 30% Pekerjaan Security System & Surveillance',
         qty: 1,
         unit: 'Lot',
         unitPrice: 150000000,
@@ -45,7 +48,8 @@ const SEED_INVOICES = [
     issueDate: '2026-09-20',
     dueDate: '2026-10-05',
     status: 'sent',
-    notes: 'Termin II (Progress 50%) Sesuai Berita Acara Progres Fisik No. BAP/04/TSC/IX/2026.',
+    notes:
+      'Termin II (Progress 50%) Sesuai Berita Acara Progres Fisik No. BAP/04/TSC/IX/2026.',
     items: [
       {
         description: 'Termin II (50%) Pengadaan & Perakitan Panel MDP/SDP',
@@ -75,15 +79,18 @@ const SEED_INVOICES = [
     projectId: 3,
     projectName: 'Apartemen Jakarta Utara - HVAC & Plumbing',
     clientName: 'PT Properti Megah Sentosa',
-    clientAddress: 'Jl. Danau Sunter Selatan Blok O, Tanjung Priok, Jakarta Utara',
+    clientAddress:
+      'Jl. Danau Sunter Selatan Blok O, Tanjung Priok, Jakarta Utara',
     clientEmail: 'billing@megahsentosa.com',
     issueDate: '2026-08-15',
     dueDate: '2026-08-30',
     status: 'paid',
-    notes: 'Pelunasan 100% dan Serah Terima Pertama (BAST-1) No. BAST/01/TSC-PMS/VIII/2026.',
+    notes:
+      'Pelunasan 100% dan Serah Terima Pertama (BAST-1) No. BAST/01/TSC-PMS/VIII/2026.',
     items: [
       {
-        description: 'Pelunasan Akhir (Termin III) Instalasi Pemipaan Chiller & Plumbing',
+        description:
+          'Pelunasan Akhir (Termin III) Instalasi Pemipaan Chiller & Plumbing',
         qty: 1,
         unit: 'Lot',
         unitPrice: 85000000,
@@ -116,17 +123,61 @@ function write(list) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(list))
 }
 
+import { api } from './api.js'
+
 export async function getInvoices() {
+  try {
+    const data = await api.get('/invoices')
+    if (Array.isArray(data) && data.length > 0) {
+      return data.map(inv => ({
+        ...inv,
+        id: inv._id || inv.id,
+        issueDate: inv.date || inv.issueDate,
+        total: inv.totalAmount || inv.total,
+        taxPercent: inv.taxRate || inv.taxPercent
+      }))
+    }
+  } catch (e) {
+    console.warn('[API Invoices Notice]:', e.message)
+  }
   await delay()
   return read()
 }
 
 export async function getInvoice(id) {
+  try {
+    const inv = await api.get(`/invoices/${id}`)
+    if (inv) {
+      return {
+        ...inv,
+        id: inv._id || inv.id,
+        issueDate: inv.date || inv.issueDate,
+        total: inv.totalAmount || inv.total,
+        taxPercent: inv.taxRate || inv.taxPercent
+      }
+    }
+  } catch (e) {
+    console.warn('[API Invoice Detail Notice]:', e.message)
+  }
   await delay(100)
-  return read().find(inv => inv.id === Number(id)) ?? null
+  return read().find(inv => inv.id === Number(id) || inv.id === id) ?? null
 }
 
 export async function createInvoice(data) {
+  try {
+    const res = await api.post('/invoices', {
+      projectId: data.projectId,
+      invoiceNumber: data.invoiceNumber,
+      date: data.issueDate || data.date,
+      dueDate: data.dueDate,
+      items: data.items,
+      notes: data.notes
+    })
+    if (res) return { ...res, id: res._id || res.id }
+  } catch (e) {
+    console.warn('[API Create Invoice Notice]:', e.message)
+  }
+
   await delay()
   const list = read()
   const id = list.reduce((max, inv) => Math.max(max, inv.id), 0) + 1
@@ -147,9 +198,18 @@ export async function createInvoice(data) {
 }
 
 export async function updateInvoice(id, patch) {
+  try {
+    if (patch.status) {
+      const res = await api.put(`/invoices/${id}/status`, { status: patch.status })
+      if (res) return { ...res, id: res._id || res.id }
+    }
+  } catch (e) {
+    console.warn('[API Update Invoice Notice]:', e.message)
+  }
+
   await delay(100)
   const list = read()
-  const index = list.findIndex(inv => inv.id === Number(id))
+  const index = list.findIndex(inv => inv.id === Number(id) || inv.id === id)
   if (index === -1) throw new Error('Invoice tidak ditemukan')
   list[index] = { ...list[index], ...patch }
   write(list)

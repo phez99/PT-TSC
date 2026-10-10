@@ -24,7 +24,11 @@ const SEED_ATTENDANCE = [
       accuracy: 12,
       address: 'Jl. Lingkar Luar Barat No. 8, Kembangan, Jakarta Barat'
     },
-    apdList: ['Helm Keselamatan (Safety Helmet)', 'Rompi Reflektor', 'Sepatu Safety'],
+    apdList: [
+      'Helm Keselamatan (Safety Helmet)',
+      'Rompi Reflektor',
+      'Sepatu Safety'
+    ],
     healthStatus: 'fit'
   },
   {
@@ -38,7 +42,8 @@ const SEED_ATTENDANCE = [
     clockOut: null,
     location: 'Kawasan Industri MM2100 Bekasi',
     status: 'ontime',
-    notes: 'Supervisi pengiriman panel genset 500kVA dan koordinasi dengan safety officer pabrik.',
+    notes:
+      'Supervisi pengiriman panel genset 500kVA dan koordinasi dengan safety officer pabrik.',
     photo: null,
     coords: {
       latitude: -6.311245,
@@ -46,7 +51,12 @@ const SEED_ATTENDANCE = [
       accuracy: 15,
       address: 'Kawasan Industri MM2100 Blok C-2, Cikarang Barat, Bekasi'
     },
-    apdList: ['Helm Keselamatan (Safety Helmet)', 'Rompi Reflektor', 'Sepatu Safety', 'Full Body Harness'],
+    apdList: [
+      'Helm Keselamatan (Safety Helmet)',
+      'Rompi Reflektor',
+      'Sepatu Safety',
+      'Full Body Harness'
+    ],
     healthStatus: 'fit'
   },
   {
@@ -60,7 +70,8 @@ const SEED_ATTENDANCE = [
     clockOut: null,
     location: 'Head Office - Ruko Newton Square',
     status: 'ontime',
-    notes: 'Rekonsiliasi invoice termin September dan verifikasi berkas faktur pajak.',
+    notes:
+      'Rekonsiliasi invoice termin September dan verifikasi berkas faktur pajak.',
     photo: null,
     coords: {
       latitude: -6.372504,
@@ -134,12 +145,46 @@ function write(list) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(list))
 }
 
+import { api } from './api.js'
+
 export async function getAttendanceList() {
+  try {
+    const data = await api.get('/attendance')
+    if (Array.isArray(data) && data.length > 0) {
+      return data.map(item => ({
+        ...item,
+        id: item._id || item.id
+      }))
+    }
+  } catch (e) {
+    console.warn('[API Attendance Notice]:', e.message)
+  }
   await delay()
   return read()
 }
 
 export async function recordClockIn(user, location, notes, extra = {}) {
+  try {
+    const payload = {
+      location,
+      notes,
+      photo: extra.photo || null,
+      coords: extra.coords || null,
+      apdList: extra.apdList || [],
+      healthStatus: extra.healthStatus || 'fit'
+    }
+    const res = await api.post('/attendance/clock-in', payload)
+    if (res) {
+      return { ...res, id: res._id || res.id }
+    }
+  } catch (err) {
+    console.warn('[API Clock In Notice]:', err.message)
+    if (err.status === 400) {
+      throw err
+    }
+  }
+
+  // Fallback lokal
   await delay()
   const list = read()
   const now = new Date()
@@ -147,7 +192,9 @@ export async function recordClockIn(user, location, notes, extra = {}) {
   const timeStr = now.toTimeString().slice(0, 5)
 
   // Cek apakah sudah absen hari ini
-  const existingIndex = list.findIndex(a => a.userId === user.id && a.date === dateStr)
+  const existingIndex = list.findIndex(
+    a => a.userId === user.id && a.date === dateStr
+  )
   if (existingIndex !== -1 && list[existingIndex].clockIn) {
     throw new Error('Anda sudah melakukan Clock In hari ini.')
   }
@@ -180,13 +227,32 @@ export async function recordClockIn(user, location, notes, extra = {}) {
 }
 
 export async function recordClockOut(user, notes, extra = {}) {
+  try {
+    const payload = {
+      notes,
+      photo: extra.photo || null,
+      coords: extra.coords || null
+    }
+    const res = await api.post('/attendance/clock-out', payload)
+    if (res) {
+      return { ...res, id: res._id || res.id }
+    }
+  } catch (err) {
+    console.warn('[API Clock Out Notice]:', err.message)
+    if (err.status === 400) {
+      throw err
+    }
+  }
+
   await delay()
   const list = read()
   const now = new Date()
   const dateStr = now.toISOString().slice(0, 10)
   const timeStr = now.toTimeString().slice(0, 5)
 
-  const existingIndex = list.findIndex(a => a.userId === user.id && a.date === dateStr)
+  const existingIndex = list.findIndex(
+    a => a.userId === user.id && a.date === dateStr
+  )
   if (existingIndex === -1) {
     throw new Error('Anda belum melakukan Clock In hari ini.')
   }
@@ -197,7 +263,8 @@ export async function recordClockOut(user, notes, extra = {}) {
   list[existingIndex].clockOutTimestamp = now.toISOString()
 
   if (notes) {
-    list[existingIndex].notes = `${list[existingIndex].notes} | Jam Pulang: ${notes}`
+    list[existingIndex].notes =
+      `${list[existingIndex].notes} | Jam Pulang: ${notes}`
   }
   write(list)
   return list[existingIndex]

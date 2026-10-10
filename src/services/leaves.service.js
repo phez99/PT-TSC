@@ -75,12 +75,47 @@ function write(list) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(list))
 }
 
+import { api } from './api.js'
+
 export async function getLeaves() {
+  try {
+    const data = await api.get('/leaves')
+    if (Array.isArray(data) && data.length > 0) {
+      return data.map(l => ({
+        ...l,
+        id: l._id || l.id,
+        daysCount: l.totalDays || l.daysCount,
+        leaveType: l.type || l.leaveType
+      }))
+    }
+  } catch (e) {
+    console.warn('[API Leaves Notice]:', e.message)
+  }
   await delay()
   return read()
 }
 
 export async function createLeave(user, payload) {
+  try {
+    const res = await api.post('/leaves', {
+      type: payload.leaveType,
+      startDate: payload.startDate,
+      endDate: payload.endDate,
+      totalDays: payload.daysCount || 1,
+      reason: payload.reason
+    })
+    if (res) {
+      return {
+        ...res,
+        id: res._id || res.id,
+        daysCount: res.totalDays || res.daysCount,
+        leaveType: res.type || res.leaveType
+      }
+    }
+  } catch (e) {
+    console.warn('[API Create Leave Notice]:', e.message)
+  }
+
   await delay()
   const list = read()
   const id = list.reduce((max, l) => Math.max(max, l.id), 0) + 1
@@ -107,6 +142,12 @@ export async function createLeave(user, payload) {
 }
 
 export async function updateLeaveStatus(id, approver, status, notes) {
+  try {
+    const res = await api.put(`/leaves/${id}/status`, { status, approvalNotes: notes })
+    if (res) return { ...res, id: res._id || res.id }
+  } catch (e) {
+    console.warn('[API Update Leave Status Notice]:', e.message)
+  }
   await delay()
   const list = read()
   const idx = list.findIndex(l => l.id === Number(id))

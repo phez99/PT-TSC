@@ -18,10 +18,13 @@ const SEED_DOCUMENTS = [
     status: 'signed', // draft | review | signed | archived
     createdAt: '2026-08-20',
     signDate: '2026-08-25',
-    firstParty: 'Ir. Hendra Wijaya (Project Director PT Properti Megah Sentosa)',
-    secondParty: 'Ahmad Fauzi (Direktur Operasional PT Trimitra Solusindo Cemerlang)',
+    firstParty:
+      'Ir. Hendra Wijaya (Project Director PT Properti Megah Sentosa)',
+    secondParty:
+      'Ahmad Fauzi (Direktur Operasional PT Trimitra Solusindo Cemerlang)',
     warrantyPeriod: '12 (Dua Belas) Bulan sejak penandatanganan BAST-1',
-    description: 'Serah terima pertama fisik pekerjaan instalasi HVAC Chiller dan pipa air bersih/kotor dengan hasil uji fungsi baik 100%.',
+    description:
+      'Serah terima pertama fisik pekerjaan instalasi HVAC Chiller dan pipa air bersih/kotor dengan hasil uji fungsi baik 100%.',
     fileUrl: '/docs/sample-bast.pdf'
   },
   {
@@ -38,7 +41,8 @@ const SEED_DOCUMENTS = [
     firstParty: 'Budi Santoso (Site Coordinator)',
     secondParty: 'Dedi Kurniawan (Lead Drafter TSC)',
     warrantyPeriod: '-',
-    description: 'Gambar terpasang resmi jaringan kabel FO, switch core, 128 titik CCTV Hikvision, dan server NVR.',
+    description:
+      'Gambar terpasang resmi jaringan kabel FO, switch core, 128 titik CCTV Hikvision, dan server NVR.',
     fileUrl: '/docs/asbuilt-cctv.pdf'
   },
   {
@@ -55,13 +59,15 @@ const SEED_DOCUMENTS = [
     firstParty: 'Ir. Surya Hartanto (Konsultan Pengawas)',
     secondParty: 'Rina Marlina (Project Manager TSC)',
     warrantyPeriod: '-',
-    description: 'Pemeriksaan bersama progres pengadaan panel genset dan penarikan kabel feeder daya.',
+    description:
+      'Pemeriksaan bersama progres pengadaan panel genset dan penarikan kabel feeder daya.',
     fileUrl: '/docs/bap-progres-50.pdf'
   },
   {
     id: 4,
     docNumber: 'HSE/TSC/SIKA-2026-089',
-    title: 'Surat Izin Kerja Aman (SIKA) Ketinggian & Pekerjaan Listrik Tegangan Menengah',
+    title:
+      'Surat Izin Kerja Aman (SIKA) Ketinggian & Pekerjaan Listrik Tegangan Menengah',
     category: 'hse',
     projectId: 2,
     projectName: 'Pabrik Bekasi - Instalasi Genset & Panel Listrik',
@@ -72,7 +78,8 @@ const SEED_DOCUMENTS = [
     firstParty: 'HSE Officer Kawasan Industri',
     secondParty: 'Safety Officer PT TSC',
     warrantyPeriod: 'Berlaku 14 Hari Kalender',
-    description: 'Persetujuan Job Safety Analysis (JSA) dan perlengkapan APD teknisi.',
+    description:
+      'Persetujuan Job Safety Analysis (JSA) dan perlengkapan APD teknisi.',
     fileUrl: '/docs/sika-hse.pdf'
   }
 ]
@@ -94,17 +101,46 @@ function write(list) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(list))
 }
 
+import { api } from './api.js'
+
 export async function getDocuments() {
+  try {
+    const data = await api.get('/documents')
+    if (Array.isArray(data) && data.length > 0) {
+      return data.map(d => ({
+        ...d,
+        id: d._id || d.id,
+        category: d.type || d.category,
+        createdAt: d.date || d.createdAt
+      }))
+    }
+  } catch (e) {
+    console.warn('[API Documents Notice]:', e.message)
+  }
   await delay()
   return read()
 }
 
 export async function getDocument(id) {
   await delay(100)
-  return read().find(d => d.id === Number(id)) ?? null
+  return read().find(d => d.id === Number(id) || d.id === id) ?? null
 }
 
 export async function createDocument(data) {
+  try {
+    const res = await api.post('/documents', {
+      docNumber: data.docNumber,
+      title: data.title,
+      type: data.category || 'bast',
+      projectId: data.projectId,
+      date: data.signDate || data.createdAt || new Date().toISOString().slice(0, 10),
+      notes: data.description
+    })
+    if (res) return { ...res, id: res._id || res.id }
+  } catch (e) {
+    console.warn('[API Create Document Notice]:', e.message)
+  }
+
   await delay()
   const list = read()
   const id = list.reduce((max, d) => Math.max(max, d.id), 0) + 1
@@ -120,9 +156,16 @@ export async function createDocument(data) {
 }
 
 export async function updateDocument(id, patch) {
+  try {
+    const res = await api.put(`/documents/${id}/status`, { status: patch.status, notes: patch.description })
+    if (res) return { ...res, id: res._id || res.id }
+  } catch (e) {
+    console.warn('[API Update Document Notice]:', e.message)
+  }
+
   await delay(100)
   const list = read()
-  const index = list.findIndex(d => d.id === Number(id))
+  const index = list.findIndex(d => d.id === Number(id) || d.id === id)
   if (index === -1) throw new Error('Dokumen tidak ditemukan')
   list[index] = { ...list[index], ...patch }
   write(list)

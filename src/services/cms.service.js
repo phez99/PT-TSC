@@ -44,7 +44,8 @@ export const DEFAULT_CMS_CONTENT = {
       'Kami terbuka untuk menjalin kerja sama sebagai partner, subkontraktor, maupun joint operation dalam pelaksanaan proyek gedung, komersial, dan fasilitas industri. Dengan komitmen pada kualitas, keselamatan kerja, dan kepatuhan standar, kami siap menjadi mitra yang andal dan profesional.',
     phone: '+62 812 1050 1150',
     email: 'trimitrasolusindocemerlang@gmail.com',
-    address: 'Legenda Wisata Ruko Newton Square U18/30, Nagrak, Gn. Putri, Bogor',
+    address:
+      'Legenda Wisata Ruko Newton Square U18/30, Nagrak, Gn. Putri, Bogor',
     officeHours: 'Senin - Jumat: 08:30 - 17:00 WIB'
   }
 }
@@ -62,14 +63,36 @@ function read() {
   return JSON.parse(JSON.stringify(DEFAULT_CMS_CONTENT))
 }
 
+import { api } from './api.js'
+
 export function getCmsContent() {
+  // Sync async dengan backend di background jika tersedia
+  if (typeof window !== 'undefined') {
+    api
+      .get('/cms')
+      .then(res => {
+        if (res) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(res))
+          window.dispatchEvent(new CustomEvent('tsc_cms_updated', { detail: res }))
+        }
+      })
+      .catch(e => {
+        console.warn('[API CMS Background Sync Notice]:', e.message)
+      })
+  }
   return read()
 }
 
 export function saveCmsContent(content) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(content))
   if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('tsc_cms_updated', { detail: content }))
+    window.dispatchEvent(
+      new CustomEvent('tsc_cms_updated', { detail: content })
+    )
+    // Simpan ke MongoDB Cloud via Backend API
+    api.put('/cms', content).catch(e => {
+      console.warn('[API Save CMS Notice]:', e.message)
+    })
   }
   return content
 }
@@ -79,6 +102,9 @@ export function resetCmsContent() {
   const def = JSON.parse(JSON.stringify(DEFAULT_CMS_CONTENT))
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('tsc_cms_updated', { detail: def }))
+    api.post('/cms/reset').catch(e => {
+      console.warn('[API Reset CMS Notice]:', e.message)
+    })
   }
   return def
 }

@@ -11,7 +11,7 @@
 // Bentuk data yang dikembalikan tidak perlu berubah.
 // ============================================================
 
-const STORAGE_KEY = 'tsc_projects';
+const STORAGE_KEY = 'tsc_projects'
 
 // Data contoh. HAPUS saat sudah pakai backend sungguhan.
 const SEED = [
@@ -28,8 +28,8 @@ const SEED = [
     progress: 45,
     members: [
       { id: 101, name: 'Budi Santoso', role: 'Project Manager' },
-      { id: 102, name: 'Dedi Kurniawan', role: 'Site Engineer' },
-    ],
+      { id: 102, name: 'Dedi Kurniawan', role: 'Site Engineer' }
+    ]
   },
   {
     id: 2,
@@ -42,7 +42,7 @@ const SEED = [
     startDate: '2026-10-01',
     endDate: '2027-01-30',
     progress: 0,
-    members: [{ id: 201, name: 'Rina Marlina', role: 'Project Manager' }],
+    members: [{ id: 201, name: 'Rina Marlina', role: 'Project Manager' }]
   },
   {
     id: 3,
@@ -55,79 +55,111 @@ const SEED = [
     startDate: '2026-01-10',
     endDate: '2026-08-20',
     progress: 100,
-    members: [],
-  },
-];
+    members: []
+  }
+]
 
-const delay = (ms = 300) => new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms))
 
 function read() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (raw) return JSON.parse(raw)
   } catch {
     // data rusak → pakai data contoh lagi
   }
-  write(SEED);
-  return JSON.parse(JSON.stringify(SEED));
+  write(SEED)
+  return JSON.parse(JSON.stringify(SEED))
 }
 
 function write(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list))
 }
 
+import { api } from './api.js'
+
 export async function getProjects() {
-  await delay();
-  return read();
+  try {
+    const data = await api.get('/projects')
+    if (Array.isArray(data) && data.length > 0) {
+      return data.map(p => ({
+        ...p,
+        id: p._id || p.id,
+        members: p.members || []
+      }))
+    }
+  } catch (e) {
+    console.warn('[API Projects Notice]:', e.message)
+  }
+  await delay()
+  return read()
 }
 
 export async function getProject(id) {
-  await delay(150);
-  return read().find((p) => p.id === Number(id)) ?? null;
+  try {
+    const p = await api.get(`/projects/${id}`)
+    if (p) return { ...p, id: p._id || p.id, members: p.members || [] }
+  } catch (e) {
+    console.warn('[API Project Detail Notice]:', e.message)
+  }
+  await delay(150)
+  return read().find(p => p.id === Number(id) || p.id === id) ?? null
 }
 
 export async function createProject(data) {
-  await delay();
-  const list = read();
-  const id = list.reduce((max, p) => Math.max(max, p.id), 0) + 1;
+  try {
+    const p = await api.post('/projects', data)
+    if (p) return { ...p, id: p._id || p.id, members: [] }
+  } catch (e) {
+    console.warn('[API Create Project Notice]:', e.message)
+  }
+  await delay()
+  const list = read()
+  const id = list.reduce((max, p) => Math.max(max, p.id), 0) + 1
   const project = {
     ...data,
     id,
     code: `PRJ-${new Date().getFullYear()}-${String(id).padStart(3, '0')}`,
     progress: 0,
-    members: [],
-  };
-  list.unshift(project);
-  write(list);
-  return project;
+    members: []
+  }
+  list.unshift(project)
+  write(list)
+  return project
 }
 
 export async function updateProject(id, patch) {
-  await delay(150);
-  const list = read();
-  const index = list.findIndex((p) => p.id === Number(id));
-  if (index === -1) throw new Error('Proyek tidak ditemukan');
-  list[index] = { ...list[index], ...patch };
-  write(list);
-  return list[index];
+  try {
+    const p = await api.put(`/projects/${id}`, patch)
+    if (p) return { ...p, id: p._id || p.id }
+  } catch (e) {
+    console.warn('[API Update Project Notice]:', e.message)
+  }
+  await delay(150)
+  const list = read()
+  const index = list.findIndex(p => p.id === Number(id) || p.id === id)
+  if (index === -1) throw new Error('Proyek tidak ditemukan')
+  list[index] = { ...list[index], ...patch }
+  write(list)
+  return list[index]
 }
 
 export async function addMember(projectId, member) {
-  await delay(150);
-  const list = read();
-  const project = list.find((p) => p.id === Number(projectId));
-  if (!project) throw new Error('Proyek tidak ditemukan');
-  project.members.push({ id: Date.now(), ...member });
-  write(list);
-  return project;
+  await delay(150)
+  const list = read()
+  const project = list.find(p => p.id === Number(projectId))
+  if (!project) throw new Error('Proyek tidak ditemukan')
+  project.members.push({ id: Date.now(), ...member })
+  write(list)
+  return project
 }
 
 export async function removeMember(projectId, memberId) {
-  await delay(150);
-  const list = read();
-  const project = list.find((p) => p.id === Number(projectId));
-  if (!project) throw new Error('Proyek tidak ditemukan');
-  project.members = project.members.filter((m) => m.id !== memberId);
-  write(list);
-  return project;
+  await delay(150)
+  const list = read()
+  const project = list.find(p => p.id === Number(projectId))
+  if (!project) throw new Error('Proyek tidak ditemukan')
+  project.members = project.members.filter(m => m.id !== memberId)
+  write(list)
+  return project
 }
