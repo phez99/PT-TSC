@@ -1,4 +1,6 @@
 {
+  "outputDirectory": "dist/spa",
+  "cleanUrls": true,
   "rewrites": [
     {
       "source": "/(.*)",
