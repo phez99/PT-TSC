@@ -1,19 +1,52 @@
 // ============================================================
-// PROJECTS SERVICE (MOCK)
-// Sementara backend Express belum ada, data disimpan di
-// localStorage browser (kunci: tsc_projects) supaya data yang
-// kamu tambah tidak hilang saat halaman di-refresh.
+// PROJECTS SERVICE
+// Backend: /api/v1/projects  (api.js sudah membuka { data } dari respons)
 //
-// Semua halaman hanya memanggil fungsi di file ini. Saat Express
-// siap, ganti ISI fungsi-fungsinya dengan panggilan axios, contoh:
-//   getProjects()   → const { data } = await api.get('/projects'); return data
-//   createProject() → const { data } = await api.post('/projects', payload); return data
-// Bentuk data yang dikembalikan tidak perlu berubah.
+// Mock localStorage HANYA aktif jika SEMUA kondisi ini terpenuhi:
+//   1. mode development (import.meta.env.DEV)
+//   2. VITE_USE_MOCK=true di file .env frontend
+//   3. backend tidak terjangkau (network error / tidak ada status HTTP)
+// Error dari backend (401/403/404/409/500, dst.) SELALU diteruskan ke UI.
 // ============================================================
+import { api } from './api.js';
 
-const STORAGE_KEY = 'tsc_projects'
+const USE_MOCK = import.meta.env.DEV && import.meta.env.VITE_USE_MOCK === 'true';
 
-// Data contoh. HAPUS saat sudah pakai backend sungguhan.
+// ------------------------- Helper -------------------------
+
+const delay = (ms = 300) => new Promise((resolve) => setTimeout(resolve, ms));
+const isNetworkError = (e) => (e?.status ?? e?.response?.status) === undefined;
+const sameId = (a, b) => String(a) === String(b);
+
+function badResponse(message) {
+  const err = new Error(message);
+  err.status = 500; // supaya tidak dianggap network error dan tidak jatuh ke mock
+  return err;
+}
+
+// Backend (MongoDB) memakai _id, UI memakai id (termasuk untuk anggota proyek)
+const normalizeProject = (p) => ({
+  ...p,
+  id: p._id || p.id,
+  members: (p.members || []).map((m) => ({ ...m, id: m._id || m.id })),
+});
+
+async function withFallback(apiCall, mockCall) {
+  try {
+    return await apiCall();
+  } catch (err) {
+    if (USE_MOCK && isNetworkError(err)) {
+      console.warn('[Projects mock fallback]:', err.message);
+      return mockCall();
+    }
+    throw err;
+  }
+}
+
+// ------------------- Data mock (DEV saja) -------------------
+
+const STORAGE_KEY = 'tsc_projects';
+
 const SEED = [
   {
     id: 1,
@@ -28,8 +61,8 @@ const SEED = [
     progress: 45,
     members: [
       { id: 101, name: 'Budi Santoso', role: 'Project Manager' },
-      { id: 102, name: 'Dedi Kurniawan', role: 'Site Engineer' }
-    ]
+      { id: 102, name: 'Dedi Kurniawan', role: 'Site Engineer' },
+    ],
   },
   {
     id: 2,
@@ -42,7 +75,7 @@ const SEED = [
     startDate: '2026-10-01',
     endDate: '2027-01-30',
     progress: 0,
-    members: [{ id: 201, name: 'Rina Marlina', role: 'Project Manager' }]
+    members: [{ id: 201, name: 'Rina Marlina', role: 'Project Manager' }],
   },
   {
     id: 3,
@@ -55,111 +88,147 @@ const SEED = [
     startDate: '2026-01-10',
     endDate: '2026-08-20',
     progress: 100,
-    members: []
-  }
-]
-
-const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms))
+    members: [],
+  },
+];
 
 function read() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) return JSON.parse(raw)
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
   } catch {
     // data rusak → pakai data contoh lagi
   }
-  write(SEED)
-  return JSON.parse(JSON.stringify(SEED))
+  write(SEED);
+  return JSON.parse(JSON.stringify(SEED));
 }
 
 function write(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list))
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  } catch (e) {
+    console.error('Error writing projects:', e);
+  }
 }
 
-import { api } from './api.js'
+// ------------------------- API -------------------------
 
-export async function getProjects() {
-  try {
-    const data = await api.get('/projects')
-    if (Array.isArray(data) && data.length > 0) {
-      return data.map(p => ({
-        ...p,
-        id: p._id || p.id,
-        members: p.members || []
-      }))
+export function getProjects() {
+  return withFallback(
+    async () => {
+      const data = await api.get('/projects');
+      // Daftar kosong dari database adalah hasil yang sah, bukan alasan memakai data contoh
+      if (!Array.isArray(data)) throw badResponse('Respons daftar proyek tidak valid');
+      return data.map(normalizeProject);
+    },
+    async () => {
+      await delay();
+      return read();
     }
-  } catch (e) {
-    console.warn('[API Projects Notice]:', e.message)
-  }
-  await delay()
-  return read()
+  );
 }
 
-export async function getProject(id) {
-  try {
-    const p = await api.get(`/projects/${id}`)
-    if (p) return { ...p, id: p._id || p.id, members: p.members || [] }
-  } catch (e) {
-    console.warn('[API Project Detail Notice]:', e.message)
-  }
-  await delay(150)
-  return read().find(p => p.id === Number(id) || p.id === id) ?? null
+export function getProject(id) {
+  return withFallback(
+    async () => {
+      try {
+        const p = await api.get(`/projects/${id}`);
+        return p ? normalizeProject(p) : null;
+      } catch (err) {
+        if (err?.status === 404) return null; // halaman detail menampilkan "tidak ditemukan"
+        throw err;
+      }
+    },
+    async () => {
+      await delay(150);
+      return read().find((p) => sameId(p.id, id)) ?? null;
+    }
+  );
 }
 
-export async function createProject(data) {
-  try {
-    const p = await api.post('/projects', data)
-    if (p) return { ...p, id: p._id || p.id, members: [] }
-  } catch (e) {
-    console.warn('[API Create Project Notice]:', e.message)
-  }
-  await delay()
-  const list = read()
-  const id = list.reduce((max, p) => Math.max(max, p.id), 0) + 1
-  const project = {
-    ...data,
-    id,
-    code: `PRJ-${new Date().getFullYear()}-${String(id).padStart(3, '0')}`,
-    progress: 0,
-    members: []
-  }
-  list.unshift(project)
-  write(list)
-  return project
+export function createProject(data) {
+  return withFallback(
+    async () => {
+      const p = await api.post('/projects', data);
+      if (!p) throw badResponse('Respons pembuatan proyek tidak valid');
+      return normalizeProject(p);
+    },
+    async () => {
+      await delay();
+      const list = read();
+      const id = list.reduce((max, p) => Math.max(max, Number(p.id) || 0), 0) + 1;
+      const project = {
+        ...data,
+        id,
+        code: `PRJ-${new Date().getFullYear()}-${String(id).padStart(3, '0')}`,
+        progress: 0,
+        members: [],
+      };
+      list.unshift(project);
+      write(list);
+      return project;
+    }
+  );
 }
 
-export async function updateProject(id, patch) {
-  try {
-    const p = await api.put(`/projects/${id}`, patch)
-    if (p) return { ...p, id: p._id || p.id }
-  } catch (e) {
-    console.warn('[API Update Project Notice]:', e.message)
-  }
-  await delay(150)
-  const list = read()
-  const index = list.findIndex(p => p.id === Number(id) || p.id === id)
-  if (index === -1) throw new Error('Proyek tidak ditemukan')
-  list[index] = { ...list[index], ...patch }
-  write(list)
-  return list[index]
+export function updateProject(id, patch) {
+  return withFallback(
+    async () => {
+      const p = await api.put(`/projects/${id}`, patch);
+      if (!p) throw badResponse('Respons pembaruan proyek tidak valid');
+      return normalizeProject(p);
+    },
+    async () => {
+      await delay(150);
+      const list = read();
+      const index = list.findIndex((p) => sameId(p.id, id));
+      if (index === -1) throw new Error('Proyek tidak ditemukan');
+      list[index] = { ...list[index], ...patch };
+      write(list);
+      return list[index];
+    }
+  );
 }
 
-export async function addMember(projectId, member) {
-  await delay(150)
-  const list = read()
-  const project = list.find(p => p.id === Number(projectId))
-  if (!project) throw new Error('Proyek tidak ditemukan')
-  project.members.push({ id: Date.now(), ...member })
-  write(list)
-  return project
+// ------------------------- Anggota proyek -------------------------
+// Backend: POST /projects/:id/members  dan  DELETE /projects/:id/members/:memberId
+// Keduanya mengembalikan proyek terbaru (dengan daftar anggota).
+
+export function addMember(projectId, member) {
+  const { id: _id, ...payload } = member || {};
+  return withFallback(
+    async () => {
+      const p = await api.post(`/projects/${projectId}/members`, payload);
+      if (!p) throw badResponse('Respons penambahan anggota tidak valid');
+      return normalizeProject(p);
+    },
+    async () => {
+      await delay(150);
+      const list = read();
+      const project = list.find((p) => sameId(p.id, projectId));
+      if (!project) throw new Error('Proyek tidak ditemukan');
+      project.members.push({ id: Date.now(), ...payload });
+      write(list);
+      return project;
+    }
+  );
 }
 
-export async function removeMember(projectId, memberId) {
-  await delay(150)
-  const list = read()
-  const project = list.find(p => p.id === Number(projectId))
-  if (!project) throw new Error('Proyek tidak ditemukan')
-  project.members = project.members.filter(m => m.id !== memberId)
-  write(list)
-  return project
+export function removeMember(projectId, memberId) {
+  return withFallback(
+    async () => {
+      const p = await api.delete(`/projects/${projectId}/members/${memberId}`);
+      if (!p) throw badResponse('Respons penghapusan anggota tidak valid');
+      return normalizeProject(p);
+    },
+    async () => {
+      await delay(150);
+      const list = read();
+      const project = list.find((p) => sameId(p.id, projectId));
+      if (!project) throw new Error('Proyek tidak ditemukan');
+      project.members = project.members.filter((m) => !sameId(m.id, memberId));
+      write(list);
+      return project;
+    }
+  );
 }

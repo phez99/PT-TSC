@@ -1,20 +1,21 @@
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 
 const itemSchema = new mongoose.Schema({
   itemName: { type: String, required: true },
   qty: { type: Number, required: true, min: 1 },
   unit: { type: String, required: true, default: 'Pcs' },
   specs: { type: String, default: '' },
-  notes: { type: String, default: '' }
-})
+  notes: { type: String, default: '' },
+});
 
 const timelineSchema = new mongoose.Schema({
+  status: { type: String, default: 'submitted' }, // <-- Tambahkan ini
   action: { type: String, required: true },
   byName: { type: String, required: true },
   byRole: { type: String, required: true },
   notes: { type: String, default: '' },
-  createdAt: { type: Date, default: Date.now }
-})
+  createdAt: { type: Date, default: Date.now },
+});
 
 const materialRequestSchema = new mongoose.Schema(
   {
@@ -22,51 +23,51 @@ const materialRequestSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      uppercase: true
+      uppercase: true,
     },
     project: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Project',
-      required: [true, 'Proyek penugasan wajib dipilih']
+      required: [true, 'Proyek penugasan wajib dipilih'],
     },
     projectName: {
       type: String,
-      required: true
+      required: true,
     },
     requester: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true
+      required: true,
     },
     requesterName: {
       type: String,
-      required: true
+      required: true,
     },
     items: [itemSchema],
     urgency: {
       type: String,
       enum: ['low', 'medium', 'high', 'urgent'],
-      default: 'medium'
+      default: 'medium',
     },
     status: {
       type: String,
-      enum: ['draft', 'submitted', 'review', 'approved', 'rejected', 'fulfilled'],
-      default: 'submitted'
+      enum: ['draft', 'submitted', 'review', 'approved', 'rejected', 'processed', 'fulfilled'],
+      default: 'submitted',
     },
     neededDate: {
       type: String,
-      default: null
+      default: null,
     },
     notes: {
       type: String,
-      default: ''
+      default: '',
     },
-    timeline: [timelineSchema]
+    timeline: [timelineSchema],
   },
   {
-    timestamps: true
+    timestamps: true,
   }
-)
+);
 
-const MaterialRequest = mongoose.model('MaterialRequest', materialRequestSchema)
-export default MaterialRequest
+const MaterialRequest = mongoose.model('MaterialRequest', materialRequestSchema);
+export default MaterialRequest;

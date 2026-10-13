@@ -42,7 +42,10 @@
         <q-card class="company-dash-card q-pa-md">
           <div class="text-caption text-grey-7 text-weight-bold">MANAJEMEN / PM</div>
           <div class="text-h4 text-weight-bold text-primary q-my-xs">
-            {{ users.filter(u => u.role === 'admin' || u.role === 'manager' || u.role === 'pm').length }}
+            {{
+              users.filter((u) => u.role === 'admin' || u.role === 'manager' || u.role === 'pm')
+                .length
+            }}
           </div>
           <div class="text-caption text-grey-6">Approval &amp; Supervisi</div>
         </q-card>
@@ -51,7 +54,7 @@
         <q-card class="company-dash-card q-pa-md">
           <div class="text-caption text-grey-7 text-weight-bold">TIM TEKNISI &amp; STAF</div>
           <div class="text-h4 text-weight-bold text-amber-8 q-my-xs">
-            {{ users.filter(u => u.role === 'staff').length }}
+            {{ users.filter((u) => u.role === 'staff').length }}
           </div>
           <div class="text-caption text-grey-6">Operasional Lapangan</div>
         </q-card>
@@ -60,7 +63,7 @@
         <q-card class="company-dash-card q-pa-md">
           <div class="text-caption text-grey-7 text-weight-bold">FINANCE &amp; BILLING</div>
           <div class="text-h4 text-weight-bold text-positive q-my-xs">
-            {{ users.filter(u => u.role === 'finance').length }}
+            {{ users.filter((u) => u.role === 'finance').length }}
           </div>
           <div class="text-caption text-grey-6">Keuangan &amp; Faktur</div>
         </q-card>
@@ -190,7 +193,7 @@
 
     <!-- ================= DIALOG FORM KARYAWAN ================= -->
     <q-dialog v-model="userDialog" persistent>
-      <q-card style="width: 520px; max-width: 95vw; border-radius: 16px;">
+      <q-card style="width: 520px; max-width: 95vw; border-radius: 16px">
         <q-card-section class="row items-center q-pb-none">
           <div class="text-h6 text-weight-bold">
             {{ isEditing ? 'Edit Data Karyawan' : 'Tambah Karyawan Baru' }}
@@ -206,7 +209,7 @@
               dense
               outlined
               label="Nama Lengkap Karyawan"
-              :rules="[v => !!v || 'Nama wajib diisi']"
+              :rules="[(v) => !!v || 'Nama wajib diisi']"
             />
             <q-input
               v-model="userForm.email"
@@ -215,7 +218,7 @@
               outlined
               label="Alamat Email Perusahaan"
               placeholder="nama@tsc.local"
-              :rules="[v => !!v || 'Email wajib diisi']"
+              :rules="[(v) => !!v || 'Email wajib diisi']"
             />
             <q-input
               v-model="userForm.password"
@@ -224,7 +227,7 @@
               outlined
               label="Password Akun"
               placeholder="Minimal 6 karakter"
-              :rules="[v => isEditing ? true : (!!v && v.length >= 6) || 'Minimal 6 karakter']"
+              :rules="[(v) => (isEditing ? true : (!!v && v.length >= 6) || 'Minimal 6 karakter')]"
             >
               <template #append>
                 <q-icon
@@ -244,7 +247,7 @@
                     { label: 'Manager Operasional', value: 'manager' },
                     { label: 'Project Manager', value: 'pm' },
                     { label: 'Staff Finance', value: 'finance' },
-                    { label: 'Staf Teknisi Lapangan', value: 'staff' }
+                    { label: 'Staf Teknisi Lapangan', value: 'staff' },
                   ]"
                   emit-value
                   map-options
@@ -260,7 +263,7 @@
                   outlined
                   label="Jabatan Formal"
                   placeholder="Mis. Site Engineer"
-                  :rules="[v => !!v || 'Jabatan wajib diisi']"
+                  :rules="[(v) => !!v || 'Jabatan wajib diisi']"
                 />
               </div>
             </div>
@@ -277,7 +280,7 @@
               v-model="userForm.status"
               :options="[
                 { label: 'Aktif Bekerja', value: 'active' },
-                { label: 'Nonaktif / Cuti', value: 'inactive' }
+                { label: 'Nonaktif / Cuti', value: 'inactive' },
               ]"
               emit-value
               map-options
@@ -297,7 +300,7 @@
 
     <!-- ================= DIALOG MATRIKS RBAC ================= -->
     <q-dialog v-model="showMatrixDialog">
-      <q-card style="width: 780px; max-width: 95vw; border-radius: 16px;">
+      <q-card style="width: 780px; max-width: 95vw; border-radius: 16px">
         <q-card-section class="row items-center q-pb-none">
           <div class="text-h6 text-weight-bold">Matriks Perizinan Role (Access Control Matrix)</div>
           <q-space />
@@ -305,73 +308,73 @@
         </q-card-section>
 
         <q-card-section class="q-pt-md">
-          <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 13px">
             <thead>
-              <tr style="background: #0f172a; color: white;">
-                <th style="padding: 10px; text-align: left;">Modul / Fitur</th>
-                <th style="padding: 10px; text-align: center;">Admin</th>
-                <th style="padding: 10px; text-align: center;">Manager</th>
-                <th style="padding: 10px; text-align: center;">PM</th>
-                <th style="padding: 10px; text-align: center;">Finance</th>
-                <th style="padding: 10px; text-align: center;">Teknisi</th>
+              <tr style="background: #0f172a; color: white">
+                <th style="padding: 10px; text-align: left">Modul / Fitur</th>
+                <th style="padding: 10px; text-align: center">Admin</th>
+                <th style="padding: 10px; text-align: center">Manager</th>
+                <th style="padding: 10px; text-align: center">PM</th>
+                <th style="padding: 10px; text-align: center">Finance</th>
+                <th style="padding: 10px; text-align: center">Teknisi</th>
               </tr>
             </thead>
             <tbody>
-              <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 10px; font-weight: bold;">Ringkasan (Dashboard)</td>
-                <td style="text-align: center; color: #16a34a;">&check; Penuh</td>
-                <td style="text-align: center; color: #16a34a;">&check; Penuh</td>
-                <td style="text-align: center; color: #16a34a;">&check; Penuh</td>
-                <td style="text-align: center; color: #16a34a;">&check; Penuh</td>
-                <td style="text-align: center; color: #16a34a;">&check; Penuh</td>
+              <tr style="border-bottom: 1px solid #e2e8f0">
+                <td style="padding: 10px; font-weight: bold">Ringkasan (Dashboard)</td>
+                <td style="text-align: center; color: #16a34a">&check; Penuh</td>
+                <td style="text-align: center; color: #16a34a">&check; Penuh</td>
+                <td style="text-align: center; color: #16a34a">&check; Penuh</td>
+                <td style="text-align: center; color: #16a34a">&check; Penuh</td>
+                <td style="text-align: center; color: #16a34a">&check; Penuh</td>
               </tr>
-              <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
-                <td style="padding: 10px; font-weight: bold;">Proyek &amp; Penugasan Tim</td>
-                <td style="text-align: center; color: #16a34a;">&check; Kelola</td>
-                <td style="text-align: center; color: #16a34a;">&check; Kelola</td>
-                <td style="text-align: center; color: #16a34a;">&check; Kelola</td>
-                <td style="text-align: center; color: #64748b;">Lihat</td>
-                <td style="text-align: center; color: #64748b;">Lihat</td>
+              <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc">
+                <td style="padding: 10px; font-weight: bold">Proyek &amp; Penugasan Tim</td>
+                <td style="text-align: center; color: #16a34a">&check; Kelola</td>
+                <td style="text-align: center; color: #16a34a">&check; Kelola</td>
+                <td style="text-align: center; color: #16a34a">&check; Kelola</td>
+                <td style="text-align: center; color: #64748b">Lihat</td>
+                <td style="text-align: center; color: #64748b">Lihat</td>
               </tr>
-              <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 10px; font-weight: bold;">Permohonan Material (MR)</td>
-                <td style="text-align: center; color: #16a34a;">Approval</td>
-                <td style="text-align: center; color: #16a34a;">Approval</td>
-                <td style="text-align: center; color: #2563eb;">Ajukan</td>
-                <td style="text-align: center; color: #d97706;">Proses PO</td>
-                <td style="text-align: center; color: #2563eb;">Ajukan</td>
+              <tr style="border-bottom: 1px solid #e2e8f0">
+                <td style="padding: 10px; font-weight: bold">Permohonan Material (MR)</td>
+                <td style="text-align: center; color: #16a34a">Approval</td>
+                <td style="text-align: center; color: #16a34a">Approval</td>
+                <td style="text-align: center; color: #2563eb">Ajukan</td>
+                <td style="text-align: center; color: #d97706">Proses PO</td>
+                <td style="text-align: center; color: #2563eb">Ajukan</td>
               </tr>
-              <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
-                <td style="padding: 10px; font-weight: bold;">Invoices &amp; Penagihan</td>
-                <td style="text-align: center; color: #16a34a;">&check; Penuh</td>
-                <td style="text-align: center; color: #16a34a;">&check; Penuh</td>
-                <td style="text-align: center; color: #64748b;">Lihat</td>
-                <td style="text-align: center; color: #16a34a;">&check; Penuh</td>
-                <td style="text-align: center; color: #ef4444;">&times;</td>
+              <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc">
+                <td style="padding: 10px; font-weight: bold">Invoices &amp; Penagihan</td>
+                <td style="text-align: center; color: #16a34a">&check; Penuh</td>
+                <td style="text-align: center; color: #16a34a">&check; Penuh</td>
+                <td style="text-align: center; color: #64748b">Lihat</td>
+                <td style="text-align: center; color: #16a34a">&check; Penuh</td>
+                <td style="text-align: center; color: #ef4444">&times;</td>
               </tr>
-              <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 10px; font-weight: bold;">Dokumen &amp; BAST Proyek</td>
-                <td style="text-align: center; color: #16a34a;">&check; Penuh</td>
-                <td style="text-align: center; color: #16a34a;">&check; Penuh</td>
-                <td style="text-align: center; color: #16a34a;">&check; Penuh</td>
-                <td style="text-align: center; color: #64748b;">Lihat</td>
-                <td style="text-align: center; color: #64748b;">Lihat</td>
+              <tr style="border-bottom: 1px solid #e2e8f0">
+                <td style="padding: 10px; font-weight: bold">Dokumen &amp; BAST Proyek</td>
+                <td style="text-align: center; color: #16a34a">&check; Penuh</td>
+                <td style="text-align: center; color: #16a34a">&check; Penuh</td>
+                <td style="text-align: center; color: #16a34a">&check; Penuh</td>
+                <td style="text-align: center; color: #64748b">Lihat</td>
+                <td style="text-align: center; color: #64748b">Lihat</td>
               </tr>
-              <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
-                <td style="padding: 10px; font-weight: bold;">Presensi &amp; Absensi GPS</td>
-                <td style="text-align: center; color: #16a34a;">Rekap</td>
-                <td style="text-align: center; color: #16a34a;">Rekap</td>
-                <td style="text-align: center; color: #16a34a;">Rekap</td>
-                <td style="text-align: center; color: #16a34a;">Rekap</td>
-                <td style="text-align: center; color: #2563eb;">Clock In/Out</td>
+              <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc">
+                <td style="padding: 10px; font-weight: bold">Presensi &amp; Absensi GPS</td>
+                <td style="text-align: center; color: #16a34a">Rekap</td>
+                <td style="text-align: center; color: #16a34a">Rekap</td>
+                <td style="text-align: center; color: #16a34a">Rekap</td>
+                <td style="text-align: center; color: #16a34a">Rekap</td>
+                <td style="text-align: center; color: #2563eb">Clock In/Out</td>
               </tr>
-              <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 10px; font-weight: bold;">Pengguna &amp; Hak Akses</td>
-                <td style="text-align: center; color: #16a34a;">&check; Penuh</td>
-                <td style="text-align: center; color: #16a34a;">&check; Penuh</td>
-                <td style="text-align: center; color: #ef4444;">&times;</td>
-                <td style="text-align: center; color: #ef4444;">&times;</td>
-                <td style="text-align: center; color: #ef4444;">&times;</td>
+              <tr style="border-bottom: 1px solid #e2e8f0">
+                <td style="padding: 10px; font-weight: bold">Pengguna &amp; Hak Akses</td>
+                <td style="text-align: center; color: #16a34a">&check; Penuh</td>
+                <td style="text-align: center; color: #16a34a">&check; Penuh</td>
+                <td style="text-align: center; color: #ef4444">&times;</td>
+                <td style="text-align: center; color: #ef4444">&times;</td>
+                <td style="text-align: center; color: #ef4444">&times;</td>
               </tr>
             </tbody>
           </table>
@@ -385,27 +388,22 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useQuasar } from 'quasar'
-import {
-  getUsers,
-  createUser,
-  updateUser,
-  deleteUser
-} from '/src/services/auth.service.js'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { useQuasar } from 'quasar';
+import { getUsers, createUser, updateUser, deleteUser } from '/src/services/auth.service.js';
 
-const $q = useQuasar()
+const $q = useQuasar();
 
-const loading = ref(true)
-const search = ref('')
-const roleFilter = ref('all')
-const users = ref([])
+const loading = ref(true);
+const search = ref('');
+const roleFilter = ref('all');
+const users = ref([]);
 
-const userDialog = ref(false)
-const showMatrixDialog = ref(false)
-const isEditing = ref(false)
-const editingId = ref(null)
-const showPwd = ref(false)
+const userDialog = ref(false);
+const showMatrixDialog = ref(false);
+const isEditing = ref(false);
+const editingId = ref(null);
+const showPwd = ref(false);
 
 const roleOptions = [
   { label: 'Semua Role', value: 'all' },
@@ -413,16 +411,16 @@ const roleOptions = [
   { label: 'Manager Operasional', value: 'manager' },
   { label: 'Project Manager', value: 'pm' },
   { label: 'Staff Finance', value: 'finance' },
-  { label: 'Teknisi Lapangan', value: 'staff' }
-]
+  { label: 'Teknisi Lapangan', value: 'staff' },
+];
 
 const columns = [
   { name: 'name', label: 'Nama Karyawan', field: 'name', align: 'left' },
   { name: 'position', label: 'Jabatan & Kontak', field: 'position', align: 'left' },
   { name: 'role', label: 'Hak Akses', field: 'role', align: 'center' },
   { name: 'status', label: 'Status', field: 'status', align: 'center' },
-  { name: 'actions', label: 'Aksi', align: 'center' }
-]
+  { name: 'actions', label: 'Aksi', align: 'center' },
+];
 
 const userForm = reactive({
   name: '',
@@ -431,99 +429,112 @@ const userForm = reactive({
   role: 'staff',
   position: 'Teknisi Lapangan',
   phone: '+62 812-',
-  status: 'active'
-})
+  status: 'active',
+});
 
 const filteredUsers = computed(() => {
-  let list = users.value
+  let list = users.value;
   if (roleFilter.value !== 'all') {
-    list = list.filter(u => u.role === roleFilter.value)
+    list = list.filter((u) => u.role === roleFilter.value);
   }
   if (search.value.trim()) {
-    const q = search.value.toLowerCase()
+    const q = search.value.toLowerCase();
     list = list.filter(
-      u =>
+      (u) =>
         u.name.toLowerCase().includes(q) ||
         u.email.toLowerCase().includes(q) ||
         u.position.toLowerCase().includes(q)
-    )
+    );
   }
-  return list
-})
+  return list;
+});
 
 function roleBadge(role) {
   switch (role) {
-    case 'admin': return { label: 'ADMINISTRATOR', color: 'purple-9' }
-    case 'manager': return { label: 'MANAGER', color: 'navy-900' }
-    case 'pm': return { label: 'PROJECT MANAGER', color: 'primary' }
-    case 'finance': return { label: 'FINANCE', color: 'positive' }
-    default: return { label: 'TEKNISI LAPANGAN', color: 'amber-8' }
+    case 'admin':
+      return { label: 'ADMINISTRATOR', color: 'purple-9' };
+    case 'manager':
+      return { label: 'MANAGER', color: 'navy-900' };
+    case 'pm':
+      return { label: 'PROJECT MANAGER', color: 'primary' };
+    case 'finance':
+      return { label: 'FINANCE', color: 'positive' };
+    default:
+      return { label: 'TEKNISI LAPANGAN', color: 'amber-8' };
   }
 }
 
 function openCreateDialog() {
-  isEditing.value = false
-  editingId.value = null
-  userForm.name = ''
-  userForm.email = ''
-  userForm.password = 'tsc123'
-  userForm.role = 'staff'
-  userForm.position = 'Teknisi Lapangan'
-  userForm.phone = '+62 812-'
-  userForm.status = 'active'
-  userDialog.value = true
+  isEditing.value = false;
+  editingId.value = null;
+  userForm.name = '';
+  userForm.email = '';
+  userForm.password = 'tsc123';
+  userForm.role = 'staff';
+  userForm.position = 'Teknisi Lapangan';
+  userForm.phone = '+62 812-';
+  userForm.status = 'active';
+  userDialog.value = true;
 }
 
 function openEditDialog(u) {
-  isEditing.value = true
-  editingId.value = u.id
-  userForm.name = u.name
-  userForm.email = u.email
-  userForm.password = ''
-  userForm.role = u.role
-  userForm.position = u.position
-  userForm.phone = u.phone || ''
-  userForm.status = u.status || 'active'
-  userDialog.value = true
+  isEditing.value = true;
+  editingId.value = u.id;
+  userForm.name = u.name;
+  userForm.email = u.email;
+  userForm.password = '';
+  userForm.role = u.role;
+  userForm.position = u.position;
+  userForm.phone = u.phone || '';
+  userForm.status = u.status || 'active';
+  userDialog.value = true;
 }
 
 async function saveUser() {
   try {
     if (isEditing.value) {
-      const patch = { ...userForm }
-      if (!patch.password) delete patch.password
-      const updated = await updateUser(editingId.value, patch)
-      const idx = users.value.findIndex(u => u.id === editingId.value)
-      if (idx !== -1) users.value[idx] = updated
-      $q.notify({ type: 'positive', message: 'Data karyawan diperbarui' })
+      const patch = { ...userForm };
+      if (!patch.password) delete patch.password;
+      const updated = await updateUser(editingId.value, patch);
+      const idx = users.value.findIndex((u) => u.id === editingId.value);
+      if (idx !== -1) users.value[idx] = updated;
+      $q.notify({ type: 'positive', message: 'Data karyawan diperbarui' });
     } else {
-      const created = await createUser({ ...userForm })
-      users.value.push(created)
-      $q.notify({ type: 'positive', message: 'Karyawan baru berhasil ditambahkan' })
+      const created = await createUser({ ...userForm });
+      users.value.push(created);
+      $q.notify({ type: 'positive', message: 'Karyawan baru berhasil ditambahkan' });
     }
-    userDialog.value = false
+    userDialog.value = false;
   } catch (err) {
-    $q.notify({ type: 'negative', message: err.message || 'Gagal menyimpan data' })
+    $q.notify({ type: 'negative', message: err.message || 'Gagal menyimpan data' });
   }
 }
 
 function confirmDelete(u) {
   $q.dialog({
-    title: 'Hapus Karyawan',
-    message: `Hapus akun ${u.name} (${u.email})?`,
-    cancel: true
+    title: 'Nonaktifkan Karyawan',
+    message: `Nonaktifkan akun ${u.name} (${u.email})? Akun tidak bisa login lagi, tetapi riwayat presensi, proyek, dan invoice tetap tersimpan.`,
+    cancel: true,
   }).onOk(async () => {
-    await deleteUser(u.id)
-    users.value = users.value.filter(usr => usr.id !== u.id)
-    $q.notify({ type: 'positive', message: 'Karyawan berhasil dihapus' })
-  })
+    try {
+      await deleteUser(u.id);
+      // Backend menonaktifkan akun (soft delete), jadi baris tetap tampil dengan status NONAKTIF
+      const idx = users.value.findIndex((usr) => usr.id === u.id);
+      if (idx !== -1) users.value[idx] = { ...users.value[idx], status: 'inactive' };
+      $q.notify({ type: 'positive', message: 'Karyawan berhasil dinonaktifkan' });
+    } catch (err) {
+      $q.notify({ type: 'negative', message: err.message || 'Gagal menonaktifkan karyawan' });
+    }
+  });
 }
 
 onMounted(async () => {
   try {
-    users.value = (await getUsers()) || []
+    users.value = (await getUsers()) || [];
+  } catch (err) {
+    $q.notify({ type: 'negative', message: err.message || 'Gagal memuat daftar karyawan' });
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-})
+});
 </script>

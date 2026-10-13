@@ -37,8 +37,8 @@ export default defineRouter((/* { store, ssrContext } */) => {
 
   // ---------- NAVIGATION GUARD ----------
   // Semua URL yang diawali /dashboard wajib login.
-  // Catatan: ini hanya mengatur tampilan. Saat backend Express jadi,
-  // pengecekan hak akses yang sebenarnya tetap harus dilakukan di server.
+  // Catatan: ini hanya mengatur tampilan. Pengecekan hak akses yang sebenarnya
+  // dilakukan di backend (middleware protect + authorize).
   Router.beforeEach((to) => {
     const { isLoggedIn, user } = useAuth();
 
@@ -56,6 +56,19 @@ export default defineRouter((/* { store, ssrContext } */) => {
       return { path: '/dashboard' };
     }
   });
+
+  // ---------- SESI BERAKHIR ----------
+  // api.js mengirim event 'tsc:unauthorized' saat server menolak token
+  // (kedaluwarsa / akun dinonaktifkan). useAuth sudah mengosongkan sesi,
+  // di sini user langsung diarahkan ke halaman login.
+  if (typeof window !== 'undefined') {
+    window.addEventListener('tsc:unauthorized', () => {
+      const current = Router.currentRoute.value;
+      if (current.path.startsWith('/dashboard')) {
+        Router.push({ path: '/login', query: { redirect: current.fullPath } });
+      }
+    });
+  }
 
   // enable HMR for it
   if (import.meta.hot) {

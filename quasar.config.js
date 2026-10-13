@@ -1,7 +1,7 @@
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file
 
-import { defineConfig } from '#q-app'
+import { defineConfig } from '#q-app';
 
 export default defineConfig((/* ctx */) => {
   return {
@@ -26,7 +26,7 @@ export default defineConfig((/* ctx */) => {
       // 'line-awesome',
 
       'roboto-font', // optional, you are not bound to it
-      'material-icons' // optional, you are not bound to it
+      'material-icons', // optional, you are not bound to it
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#build
@@ -50,30 +50,34 @@ export default defineConfig((/* ctx */) => {
       // distDir
 
       extendViteConf(viteConf) {
-        if (!viteConf.server) viteConf.server = {}
-        viteConf.server.allowedHosts = true
+        if (!viteConf.server) viteConf.server = {};
+        viteConf.server.allowedHosts = true;
 
-        viteConf.plugins = viteConf.plugins || []
+        viteConf.plugins = viteConf.plugins || [];
         viteConf.plugins.push({
           name: 'tsc-backend-api-middleware',
           configureServer(server) {
             import('./backend/server.js')
               .then(({ default: app }) => {
-                server.middlewares.use(app)
+                server.middlewares.use(app);
               })
-              .catch(err => {
-                console.error('[Backend Dev Middleware Error]:', err.message)
-              })
-          }
-        })
-      }
+              .catch((err) => {
+                console.error('[Backend Dev Middleware Error]:', err.message);
+              });
+          },
+        });
+      },
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#devserver
     devServer: {
-      host: '0.0.0.0',
       port: 3000,
-      open: false
+      proxy: {
+        '/api': {
+          target: 'http://localhost:5000',
+          changeOrigin: true,
+        },
+      },
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#framework
@@ -91,7 +95,7 @@ export default defineConfig((/* ctx */) => {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['Notify']
+      plugins: ['Notify', 'Dialog', 'Loading'],
     },
 
     // animations: 'all', // --- includes all animations
@@ -119,8 +123,8 @@ export default defineConfig((/* ctx */) => {
        */
       prodPort: 3000,
       middlewares: [
-        'render' // keep this as last one
-      ]
+        'render', // keep this as last one
+      ],
 
       // clientSideRenderingRoutes: [],
       // noPreloadTagRoutes: [],
@@ -165,7 +169,7 @@ export default defineConfig((/* ctx */) => {
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-pwa/configuring-pwa
     pwa: {
-      workboxMode: 'GenerateSW' // 'GenerateSW' or 'InjectManifest'
+      workboxMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
       // swFilename: 'sw.js',
       // manifestFilename: 'manifest.json',
       // extendPWAManifestJson (json) {},
@@ -182,7 +186,7 @@ export default defineConfig((/* ctx */) => {
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-capacitor-apps/configuring-capacitor
     capacitor: {
-      hideSplashscreen: true
+      hideSplashscreen: true,
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-electron-apps/configuring-electron
@@ -213,8 +217,8 @@ export default defineConfig((/* ctx */) => {
       builder: {
         // https://www.electron.build/configuration
 
-        appId: 'master'
-      }
+        appId: 'master',
+      },
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-browser-extensions/configuring-bex
@@ -230,7 +234,7 @@ export default defineConfig((/* ctx */) => {
        *
        * @example [ 'my-script.ts', 'sub-folder/my-other-script.js' ]
        */
-      extraScripts: []
-    }
-  }
-})
+      extraScripts: [],
+    },
+  };
+});
