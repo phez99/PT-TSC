@@ -9,6 +9,7 @@ export const PROJECT_STATUSES = [
   { value: 'ongoing', label: 'Berjalan', color: 'amber-8' },
   { value: 'hold', label: 'Ditunda', color: 'red-5' },
   { value: 'done', label: 'Selesai', color: 'green-7' },
+  { value: 'cancelled', label: 'Dibatalkan', color: 'grey-7' },
 ];
 
 // Disamakan dengan bagian "Layanan & Produk" di company profile

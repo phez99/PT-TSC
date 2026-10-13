@@ -3,6 +3,7 @@ import Project from '../models/Project.js';
 import MaterialRequest from '../models/MaterialRequest.js';
 import Invoice from '../models/Invoice.js';
 import DocumentModel from '../models/Document.js';
+import Overtime from '../models/Overtime.js';
 import { successResponse, errorResponse } from '../utils/apiResponse.js';
 
 // ------------------------- Konfigurasi -------------------------
@@ -39,6 +40,18 @@ const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const canSeeContractValue = (user) => !HIDE_CONTRACT_VALUE_ROLES.includes(user?.role);
 
+// Hanya role ini yang boleh melihat daftar proyek terarsip
+const ARCHIVE_VIEW_ROLES = ['admin', 'manager'];
+
+// Dokumen lama yang belum punya field isArchived dianggap tidak terarsip
+const NOT_ARCHIVED = { $ne: true };
+
+const archivedConflict = (res) =>
+  errorResponse(res, {
+    statusCode: 409,
+    message: 'Proyek sudah diarsipkan. Pulihkan proyek terlebih dahulu sebelum mengubah datanya.',
+  });
+
 const notFound = (res, message = 'Proyek tidak ditemukan.') =>
   errorResponse(res, { statusCode: 404, message });
 
@@ -59,8 +72,14 @@ const generateProjectCode = async () => {
 
 export const getProjects = async (req, res, next) => {
   try {
-    const { status, search } = req.query;
+    const { status, search, archived } = req.query;
     const query = {};
+
+    // archived=true → hanya terarsip, archived=all → semuanya (khusus admin & manager).
+    // Selain itu (atau role lain) hanya proyek yang tidak terarsip.
+    const canSeeArchived = ARCHIVE_VIEW_ROLES.includes(req.user?.role);
+    if (canSeeArchived && archived === 'true') query.isArchived = true;
+    else if (!(canSeeArchived && archived === 'all')) query.isArchived = NOT_ARCHIVED;
 
     if (typeof status === 'string' && status) query.status = status;
     if (typeof search === 'string' && search) {
@@ -160,11 +179,14 @@ export const updateProject = async (req, res, next) => {
       });
     }
 
-    const project = await Project.findByIdAndUpdate(id, data, {
+    // Proyek terarsip tidak bisa diubah (filter atomik, tanpa celah antara cek dan simpan)
+    const project = await Project.findOneAndUpdate({ _id: id, isArchived: NOT_ARCHIVED }, data, {
       new: true,
       runValidators: true,
     });
-    if (!project) return notFound(res);
+    if (!project) {
+      return (await Project.exists({ _id: id })) ? archivedConflict(res) : notFound(res);
+    }
 
     return successResponse(res, {
       statusCode: 200,
@@ -176,23 +198,35 @@ export const updateProject = async (req, res, next) => {
   }
 };
 
-// Hapus permanen ditolak jika proyek sudah dipakai data lain, supaya tidak ada
-// referensi yatim. Gunakan status 'hold' / 'done' untuk menutup proyek.
-// Catatan: pengecekan Invoice & Dokumen mengasumsikan field relasinya bernama `project`.
-// Jika nama field di model tersebut berbeda, sesuaikan filter di bawah.
+// Hapus permanen hanya untuk proyek berstatus 'planning' yang belum dipakai data lain
+// (Material Request, Lembur, Invoice, Dokumen), supaya tidak ada referensi yatim.
+// Selain itu proyek diarsipkan lewat archiveProject.
 export const deleteProject = async (req, res, next) => {
   try {
     const { id } = req.params;
     if (!mongoose.isObjectIdOrHexString(id)) return notFound(res);
 
-    const [materialRequests, invoices, documents] = await Promise.all([
+    const existing = await Project.findById(id).select('status name');
+    if (!existing) return notFound(res);
+
+    if (existing.status !== 'planning') {
+      return errorResponse(res, {
+        statusCode: 409,
+        message:
+          'Hanya proyek berstatus "planning" yang bisa dihapus permanen. Arsipkan proyek ini sebagai gantinya.',
+      });
+    }
+
+    const [materialRequests, overtimes, invoices, documents] = await Promise.all([
       MaterialRequest.countDocuments({ project: id }),
+      Overtime.countDocuments({ project: id }),
       Invoice.countDocuments({ project: id }),
       DocumentModel.countDocuments({ project: id }),
     ]);
 
     const usage = [
       materialRequests && `${materialRequests} Material Request`,
+      overtimes && `${overtimes} Lembur`,
       invoices && `${invoices} Invoice`,
       documents && `${documents} Dokumen`,
     ].filter(Boolean);
@@ -200,7 +234,7 @@ export const deleteProject = async (req, res, next) => {
     if (usage.length > 0) {
       return errorResponse(res, {
         statusCode: 409,
-        message: `Proyek tidak dapat dihapus karena masih dipakai oleh ${usage.join(', ')}. Ubah statusnya menjadi "hold" atau "done" sebagai gantinya.`,
+        message: `Proyek tidak dapat dihapus karena masih dipakai oleh ${usage.join(', ')}. Arsipkan proyek ini sebagai gantinya.`,
       });
     }
 
@@ -210,6 +244,70 @@ export const deleteProject = async (req, res, next) => {
     return successResponse(res, {
       statusCode: 200,
       message: `Proyek '${project.name}' berhasil dihapus.`,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ------------------------- Arsip -------------------------
+
+// Arsipkan proyek (soft delete): disembunyikan dari daftar utama, seluruh data
+// Material Request, Lembur, Invoice, dan Dokumen miliknya tetap utuh.
+export const archiveProject = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.isObjectIdOrHexString(id)) return notFound(res);
+
+    const reason = typeof req.body?.reason === 'string' ? req.body.reason.trim() : '';
+    if (reason.length > 500) {
+      return errorResponse(res, {
+        statusCode: 400,
+        message: 'Alasan arsip maksimal 500 karakter.',
+      });
+    }
+
+    const project = await Project.findOneAndUpdate(
+      { _id: id, isArchived: NOT_ARCHIVED },
+      { isArchived: true, archivedAt: new Date(), archivedBy: req.user._id, archiveReason: reason },
+      { new: true }
+    );
+    if (!project) {
+      return (await Project.exists({ _id: id }))
+        ? errorResponse(res, { statusCode: 409, message: 'Proyek sudah diarsipkan.' })
+        : notFound(res);
+    }
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: `Proyek '${project.name}' berhasil diarsipkan.`,
+      data: project,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const restoreProject = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.isObjectIdOrHexString(id)) return notFound(res);
+
+    const project = await Project.findOneAndUpdate(
+      { _id: id, isArchived: true },
+      { isArchived: false, archivedAt: null, archivedBy: null, archiveReason: '' },
+      { new: true }
+    );
+    if (!project) {
+      return (await Project.exists({ _id: id }))
+        ? errorResponse(res, { statusCode: 409, message: 'Proyek tidak dalam keadaan diarsipkan.' })
+        : notFound(res);
+    }
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: `Proyek '${project.name}' berhasil dipulihkan.`,
+      data: project,
     });
   } catch (err) {
     next(err);
@@ -234,6 +332,7 @@ export const addProjectMember = async (req, res, next) => {
 
     const project = await Project.findById(id);
     if (!project) return notFound(res);
+    if (project.isArchived) return archivedConflict(res);
 
     project.members.push(member);
     await project.save();
@@ -257,6 +356,7 @@ export const removeProjectMember = async (req, res, next) => {
 
     const project = await Project.findById(id);
     if (!project) return notFound(res);
+    if (project.isArchived) return archivedConflict(res);
 
     const member = project.members.id(memberId);
     if (!member) return notFound(res, 'Anggota tidak ditemukan.');

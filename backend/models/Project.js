@@ -33,8 +33,30 @@ const projectSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['planning', 'ongoing', 'hold', 'done'], // sama dengan PROJECT_STATUSES di frontend
+      enum: ['planning', 'ongoing', 'hold', 'done', 'cancelled'], // sama dengan PROJECT_STATUSES di frontend
       default: 'ongoing',
+    },
+    // Arsip = penanda tampilan (soft delete). Terpisah dari status bisnis: proyek 'cancelled'
+    // tetap tampil di laporan, proyek terarsip disembunyikan dari daftar utama dan bisa dipulihkan.
+    isArchived: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    archivedAt: {
+      type: Date,
+      default: null,
+    },
+    archivedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
+    archiveReason: {
+      type: String,
+      trim: true,
+      maxlength: [500, 'Alasan arsip maksimal 500 karakter'],
+      default: '',
     },
     progress: {
       type: Number,

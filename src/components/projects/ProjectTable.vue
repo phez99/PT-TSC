@@ -9,7 +9,7 @@
       :filter="search"
       :loading="loading"
       :pagination="{ rowsPerPage: 10 }"
-      no-data-label="Belum ada proyek"
+      :no-data-label="archivedView ? 'Belum ada proyek terarsip' : 'Belum ada proyek'"
       @row-click="(evt, row) => $emit('row-click', row)"
     >
       <template #top>
@@ -24,6 +24,21 @@
         >
           <template #prepend><q-icon name="search" /></template>
         </q-input>
+        <q-btn-toggle
+          v-if="canViewArchive"
+          :model-value="archivedView"
+          @update:model-value="(val) => $emit('update:archivedView', val)"
+          class="q-ml-md"
+          no-caps
+          unelevated
+          toggle-color="amber-8"
+          color="grey-3"
+          text-color="grey-8"
+          :options="[
+            { label: 'Aktif', value: false },
+            { label: 'Arsip', value: true },
+          ]"
+        />
         <q-space />
         <q-select
           :model-value="statusFilter"
@@ -44,6 +59,33 @@
             :color="statusOf(props.row.status).color"
             :label="statusOf(props.row.status).label"
           />
+        </q-td>
+      </template>
+
+      <template #body-cell-actions="props">
+        <q-td :props="props" auto-width>
+          <q-btn
+            v-if="archivedView"
+            flat
+            round
+            dense
+            icon="unarchive"
+            color="primary"
+            @click.stop="$emit('restore', props.row)"
+          >
+            <q-tooltip>Pulihkan proyek</q-tooltip>
+          </q-btn>
+          <q-btn
+            v-else
+            flat
+            round
+            dense
+            icon="archive"
+            color="grey-7"
+            @click.stop="$emit('archive', props.row)"
+          >
+            <q-tooltip>Arsipkan proyek</q-tooltip>
+          </q-btn>
         </q-td>
       </template>
 
@@ -75,7 +117,16 @@ defineProps({
   statusOptions: { type: Array, required: true },
   loading: { type: Boolean, default: false },
   statusOf: { type: Function, required: true },
+  archivedView: { type: Boolean, default: false },
+  canViewArchive: { type: Boolean, default: false },
 });
 
-defineEmits(['update:search', 'update:statusFilter', 'row-click']);
+defineEmits([
+  'update:search',
+  'update:statusFilter',
+  'update:archivedView',
+  'row-click',
+  'archive',
+  'restore',
+]);
 </script>

@@ -113,17 +113,22 @@ function write(list) {
 
 // ------------------------- API -------------------------
 
-export function getProjects() {
+// options.archived: 'true' → hanya proyek terarsip, 'all' → semuanya (khusus admin & manager).
+// Tanpa opsi, backend hanya mengirim proyek yang tidak terarsip.
+export function getProjects({ archived } = {}) {
+  const query = archived ? `?archived=${encodeURIComponent(archived)}` : '';
   return withFallback(
     async () => {
-      const data = await api.get('/projects');
+      const data = await api.get(`/projects${query}`);
       // Daftar kosong dari database adalah hasil yang sah, bukan alasan memakai data contoh
       if (!Array.isArray(data)) throw badResponse('Respons daftar proyek tidak valid');
       return data.map(normalizeProject);
     },
     async () => {
       await delay();
-      return read();
+      const list = read();
+      if (archived === 'all') return list;
+      return list.filter((p) => (archived === 'true' ? p.isArchived : !p.isArchived));
     }
   );
 }
@@ -186,6 +191,62 @@ export function updateProject(id, patch) {
       list[index] = { ...list[index], ...patch };
       write(list);
       return list[index];
+    }
+  );
+}
+
+// ------------------------- Arsip & hapus -------------------------
+// Backend: PUT /projects/:id/archive, PUT /projects/:id/restore (admin),
+//          DELETE /projects/:id (admin, hanya proyek 'planning' tanpa relasi).
+
+export function archiveProject(id, reason = '') {
+  return withFallback(
+    async () => {
+      const p = await api.put(`/projects/${id}/archive`, { reason });
+      if (!p) throw badResponse('Respons pengarsipan proyek tidak valid');
+      return normalizeProject(p);
+    },
+    async () => {
+      await delay(150);
+      const list = read();
+      const index = list.findIndex((p) => sameId(p.id, id));
+      if (index === -1) throw new Error('Proyek tidak ditemukan');
+      list[index] = { ...list[index], isArchived: true, archiveReason: reason };
+      write(list);
+      return list[index];
+    }
+  );
+}
+
+export function restoreProject(id) {
+  return withFallback(
+    async () => {
+      const p = await api.put(`/projects/${id}/restore`, {});
+      if (!p) throw badResponse('Respons pemulihan proyek tidak valid');
+      return normalizeProject(p);
+    },
+    async () => {
+      await delay(150);
+      const list = read();
+      const index = list.findIndex((p) => sameId(p.id, id));
+      if (index === -1) throw new Error('Proyek tidak ditemukan');
+      list[index] = { ...list[index], isArchived: false, archiveReason: '' };
+      write(list);
+      return list[index];
+    }
+  );
+}
+
+export function deleteProject(id) {
+  return withFallback(
+    async () => {
+      await api.delete(`/projects/${id}`);
+      return true;
+    },
+    async () => {
+      await delay(150);
+      write(read().filter((p) => !sameId(p.id, id)));
+      return true;
     }
   );
 }

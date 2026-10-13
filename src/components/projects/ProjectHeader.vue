@@ -18,6 +18,14 @@
             :label="statusOf(project.status).label"
             class="q-px-sm text-weight-bold"
           />
+          <q-badge
+            v-if="project.isArchived"
+            color="grey-8"
+            label="Terarsip"
+            class="q-px-sm text-weight-bold"
+          >
+            <q-tooltip v-if="project.archiveReason">{{ project.archiveReason }}</q-tooltip>
+          </q-badge>
           <span class="text-caption text-grey-4 q-ml-sm">
             {{ categoryLabel(project.category) }}
           </span>
